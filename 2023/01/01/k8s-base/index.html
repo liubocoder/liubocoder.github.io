@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>K8S基础</title>
+    <meta name="description" content="  前言  minikube安装前言本文记录k8s的学习过程，测试是基于版本1.18.20。minikube安装如果仅是作为学习了解，可以使用minikube，快速的体验k8s的各个功能，部署相关指令如下，系统采用centos7">
+
+    <link rel="shortcut icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_8v3czwksspqlg14i.css">
+    <link rel="stylesheet" href="/css/main.css ">
+    <link rel="canonical" href="http://localhost:4001/2023/01/01/k8s-base/">
+    <link rel="alternate" type="application/rss+xml" title="刘波的学习记录" href="http://localhost:4001/feed.xml ">
+
+
+    <script>
+    // 百度统计代码
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b659da8ed4e65e6090d2d6a718d56b8f";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+
+
+
+
+</head>
+
+
+  <body>
+
+    <header id="top">
+    <div class="wrapper">
+        <a href="/" class="brand">刘波的学习记录</a>
+        <small>Android Go Python Java C Coder</small>
+        <button id="headerMenu" class="menu"><i class="fa fa-bars"></i></button>
+        <nav id="headerNav">
+            <ul>
+                <li>
+                    
+                    <a href="/">
+                    
+                        <i class="fa fa-home"></i>主页
+                    </a>
+                </li>
+
+                
+                    
+                    <li>
+                        
+                        <a href="/archive/">
+                        
+                            <i class="fa fa-archive"></i>归档
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/category/">
+                        
+                            <i class="fa fa-th-list"></i>分类
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/tag/">
+                        
+                            <i class="fa fa-tags"></i>标签
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/collection/">
+                        
+                            <i class="fa fa-bookmark"></i>收藏
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/about/">
+                        
+                            <i class="fa fa-heart"></i>关于
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/testtitle/">
+                        
+                            <i class="fa fa-ignore"></i>保留
+                        </a>
+                    </li>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            </ul>
+        </nav>
+    </div>
+</header>
+
+
+        <div class="page clearfix" post>
+    <div class="left">
+        <h1>K8S基础</h1>
+        <div class="label">
+
+            <div class="label-card">
+                <i class="fa fa-calendar"></i>2023-01-01
+            </div>
+
+            <div class="label-card">
+                <i class="fa fa-user"></i>liubo
+                
+            </div>
+            <div class="label-card">
+                <p><i class="fa fa-eye fa-x"></i><span id="busuanzi_value_page_pv"></span></p>
+            </div>
+            <div class="label-card">
+                
+            </div>
+
+            <div class="label-card">
+            
+
+
+<!-- <span class="point">•</span> -->
+<span class="categories">
+  <i class="fa fa-th-list"></i>
+  
+    
+        <a href="/category/#后端" title="Category: 后端" rel="category">后端</a>
+    
+  
+
+  <!-- <span class="point">•</span> -->
+</span>
+
+
+            </div>
+
+            <div class="label-card">
+            
+<!-- <span class="point">•</span> -->
+<span class="pageTag">
+  <i class="fa fa-tags"></i>
+  
+    
+        <!--a href="/tag/#blog" title="Tag: blog" rel="tag">blog</a-->
+        <a href="/tag/#blog" title="Tag: blog" rel="tag">blog</a>
+    
+  
+
+</span>
+
+            </div>
+
+        </div>
+        <hr>
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+        <ul id="markdown-toc">
+  <li><a href="#前言" id="markdown-toc-前言">前言</a></li>
+  <li><a href="#minikube安装" id="markdown-toc-minikube安装">minikube安装</a></li>
+  <li><a href="#k8s本地文档" id="markdown-toc-k8s本地文档">k8s本地文档</a></li>
+  <li><a href="#kubectl安装" id="markdown-toc-kubectl安装">kubectl安装</a></li>
+  <li><a href="#配置k8" id="markdown-toc-配置k8">配置k8</a>    <ul>
+      <li><a href="#基础环境" id="markdown-toc-基础环境">基础环境</a></li>
+      <li><a href="#初始安装" id="markdown-toc-初始安装">初始安装</a></li>
+      <li><a href="#配置节点" id="markdown-toc-配置节点">配置节点</a></li>
+      <li><a href="#临时的端口映射" id="markdown-toc-临时的端口映射">临时的端口映射</a></li>
+    </ul>
+  </li>
+  <li><a href="#使用swagger查看api" id="markdown-toc-使用swagger查看api">使用swagger查看API</a>    <ul>
+      <li><a href="#仅查看api" id="markdown-toc-仅查看api">仅查看API</a></li>
+      <li><a href="#查看并访问-仅用于开发调试" id="markdown-toc-查看并访问-仅用于开发调试">查看并访问-仅用于开发调试</a></li>
+    </ul>
+  </li>
+  <li><a href="#知识点梳理" id="markdown-toc-知识点梳理">知识点梳理</a>    <ul>
+      <li><a href="#pod状态" id="markdown-toc-pod状态">Pod状态</a></li>
+      <li><a href="#k8s-三种访问模式" id="markdown-toc-k8s-三种访问模式">k8s 三种访问模式</a></li>
+      <li><a href="#clusterip" id="markdown-toc-clusterip">ClusterIP</a></li>
+      <li><a href="#nodeport" id="markdown-toc-nodeport">NodePort</a></li>
+      <li><a href="#loadbalancer" id="markdown-toc-loadbalancer">LoadBalancer</a></li>
+      <li><a href="#externalname" id="markdown-toc-externalname">ExternalName</a></li>
+      <li><a href="#ingress" id="markdown-toc-ingress">Ingress</a></li>
+      <li><a href="#指令" id="markdown-toc-指令">指令</a></li>
+      <li><a href="#指定不同节点部署-亲和力" id="markdown-toc-指定不同节点部署-亲和力">指定不同节点部署 亲和力</a></li>
+    </ul>
+  </li>
+  <li><a href="#网络插件" id="markdown-toc-网络插件">网络插件</a></li>
+  <li><a href="#参考资料" id="markdown-toc-参考资料">参考资料</a></li>
+</ul>
+
+<h2 id="前言">前言</h2>
+
+<p>本文记录k8s的学习过程，测试是基于版本1.18.20。</p>
+
+<h2 id="minikube安装">minikube安装</h2>
+
+<p>如果仅是作为学习了解，可以使用minikube，快速的体验k8s的各个功能，部署相关指令如下，系统采用centos7</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>查看版本
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+安装
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+#普通用户加入docker组，拥有docker权限
+#没有docker组 创建之，然后重启docker服务
+sudo groupadd docker
+sudo usermod -aG docker ${USER}
+#更新用户组
+newgrp docker
+
+#启动minikube
+minikube start --driver=none
+#启动图形控制台
+minikube dashboard --url
+#minikube的图形控制台默认是绑定在本地还回地址上，外部无法访问，需要使用代理的方式将端口开放 --port=未使用的端口
+kubectl proxy --port=43909 --address='0.0.0.0' --disable-filter=true --accept-hosts='^.*'
+</code></pre></div></div>
+<h2 id="k8s本地文档">k8s本地文档</h2>
+<p>可以考虑搞一个k8s的本地文档，便于查阅k8s的相关api。</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/kubernetes/website.git
+cd website
+</code></pre></div></div>
+
+<p>Dockerfile使用国内源，在Dockerfile中添加如下指令，包括go的国内代理、github加速、docker源</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ENV GOPROXY https://goproxy.cn
+# 这条不一定有用
+RUN echo -e 140.82.113.3 github.com &gt;&gt; /etc/hosts
+RUN echo -e http://mirrors.ustc.edu.cn/alpine/v3.15/main/ &gt; /etc/apk/repositories
+#npm的安装源配置成taobao源
+npm install --registry=https://registry.npm.taobao.org -D autoprefixer postcss-cli
+</code></pre></div></div>
+
+<p>编译和运行</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>make container-image
+make container-serve
+</code></pre></div></div>
+
+<h2 id="kubectl安装">kubectl安装</h2>
+<p>kubectl 是k8s命令行工具，正式部署的第一件事安装kubectl。</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>下载二进制安装包 注意cpu版本
+wget -c https://dl.k8s.io/release/v1.23.3/bin/linux/amd64/kubectl
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>下载对应校验包
+wget -c  https://dl.k8s.io/release/v1.23.3/bin/linux/amd64/kubectl.sha256
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>校验
+echo "$(&lt;kubectl.sha256) kubectl" | sha256sum --check
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>安装
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+</code></pre></div></div>
+
+<p>启用 fish 自动补全的可选配置。
+kubectl 通过命令 kubectl completion fish 生成 Fish 自动补全脚本。 在 shell 中导入（Sourcing）该自动补全脚本，将启动 kubectl 自动补全功能。</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#当前用户安装
+echo 'source &lt;(kubectl completion bash)' &gt;&gt;~/.bashrc
+</code></pre></div></div>
+
+<h2 id="配置k8">配置k8</h2>
+
+<h3 id="基础环境">基础环境</h3>
+
+<p>centos7配置k8s，关闭虚拟内存</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#临时关闭虚拟内存
+swapoff -a
+#永久关闭虚拟内存
+sed -ri 's/.*swap.*/#&amp;/' /etc/fstab
+</code></pre></div></div>
+
+<h3 id="初始安装">初始安装</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cat &gt; /etc/yum.repos.d/kubernetes.repo &lt;&lt; EOF
+[kubernetes]
+name=Kubernetes
+baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=0
+repo_gpgcheck=0
+gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg
+       https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
+EOF
+
+yum install -y kubelet-1.18.20 kubeadm-1.18.20 kubectl-1.18.20
+
+systemctl enable kubelet
+
+yum list kubelet --showduplicates
+
+</code></pre></div></div>
+
+<h3 id="配置节点">配置节点</h3>
+
+<p>在初始安装的基础上，配置各类节点</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># master
+kubeadm init \
+  --kubernetes-version 1.18.20 \
+  --apiserver-advertise-address=x.x.x.x \ #物理机ip
+  --service-cidr=10.96.0.0/16 \
+  --pod-network-cidr=10.245.0.0/16 \
+  --image-repository registry.aliyuncs.com/google_containers
+
+# master生成token
+kubeadm token create --print-join-command
+
+# node配置master
+kubeadm join 10.134.37.200:6443 --token j910al.vriuzrbfzxtmkme1\
+ --discovery-token-ca-cert-hash sha256:e026cb6e42d5ddf899bef8660f6a4fc542f2d5f2a8497e80302eee0891862352
+
+# 配置网络插件
+根据博客上的提示 使用flannel
+
+# 测试
+使用配置文件创建pod
+...
+直接run pod
+kubectl run -it busybox --image=busybox
+kubectl attach busybox -c busybox -it
+
+
+#端口映射 映射物理机端口Service或Pod的端口
+kubectl port-forward service/frontend 8080:80 --address 0.0.0.0
+
+</code></pre></div></div>
+
+<h3 id="临时的端口映射">临时的端口映射</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl  proxy --port=8081 --address 0.0.0.0 --disable-filter=true --accept-hosts='^.*'
+</code></pre></div></div>
+
+<h2 id="使用swagger查看api">使用swagger查看API</h2>
+
+<p>用这种方式可查看k8s的api列表。</p>
+
+<h3 id="仅查看api">仅查看API</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl proxy --port=8080
+
+curl localhost:8080/openapi/v2 &gt; k8s-swagger.json
+
+docker run \
+    --rm \
+    -d \
+    -p 80:8080 \
+    -e SWAGGER_JSON=/k8s-swagger.json \
+    -v $(pwd)/k8s-swagger.json:/k8s-swagger.json \
+    swaggerapi/swagger-ui
+
+</code></pre></div></div>
+
+<p>参考</p>
+
+<p><a href="https://zhuanlan.zhihu.com/p/426581525">https://zhuanlan.zhihu.com/p/426581525</a></p>
+
+<h3 id="查看并访问-仅用于开发调试">查看并访问-仅用于开发调试</h3>
+
+<p>参考</p>
+
+<p><a href="https://www.shuzhiduo.com/A/obzb3ajBJE/">https://www.shuzhiduo.com/A/obzb3ajBJE/</a></p>
+
+<h2 id="知识点梳理">知识点梳理</h2>
+
+<h3 id="pod状态">Pod状态</h3>
+
+<p>Pendding ApiServer已创建Pod，Pad内部还未创建容器；</p>
+
+<p>ContainerCreating 容器创建中，含镜像下载过程；</p>
+
+<p>ImagePullBackOff 镜像下载失败；</p>
+
+<p>Running Pod内的容器均已创建，至少有一个容器处于运行状态、正在启动或重启状态；</p>
+
+<p>Succeeded Pod内所有容器已执行完 退出，且不再重启；</p>
+
+<p>Failed Pod内所有容易已退出，至少有一个容器异常退出；</p>
+
+<p>Unknown 无法获取Pod状态，网络异常等；</p>
+
+<p>还有其他一些状态，不再细说。</p>
+
+<h3 id="k8s-三种访问模式">k8s 三种访问模式</h3>
+
+<ol>
+  <li>NodePort</li>
+  <li>LoardBalancer</li>
+  <li>Ingress</li>
+</ol>
+
+<p>三者都是将集群外部的流量导入集群内部的方式，只是实现方式不同。</p>
+
+<h3 id="clusterip">ClusterIP</h3>
+
+<p>ClusterIP服务器是Kubernetes的默认服务。内部能访问，外部无法访问。这些服务在设计上仅为内部集群提供服务，在一些特定情况可能需要外部访问，那么可以使用代理或者端口转发。</p>
+
+<p>例如：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># 代理
+kubectl  proxy --port=8081 --address 0.0.0.0 --disable-filter=true --accept-hosts='^.*'
+
+# 端口转发
+kubectl port-forward service/redis-slave 6379:6379 --address 0.0.0.0
+</code></pre></div></div>
+
+<h3 id="nodeport">NodePort</h3>
+
+<p>NodePort服务是开放服务的最原始方式。该方案是在所有Node上开放特定端口作为对外提供服务的端口。</p>
+
+<p>NodePort在配置的时候type=NodePort，端口中需配置nodePort来指定对外端口。</p>
+
+<p>缺点：</p>
+<ul>
+  <li>每个端口只能是一种服务</li>
+  <li>端口的范围30000-32767</li>
+  <li>节点IP发生变化需要重新配置</li>
+</ul>
+
+<h3 id="loadbalancer">LoadBalancer</h3>
+
+<p>LoadBalancer服务是对外提供服务的标准方式。这种方案有单独的IP，用于转发流量到内部集群。</p>
+
+<p>externalIPs在云平台下选用该类型，服务会自动分配一个外部IP用于对内部集群进行访问。</p>
+
+<h3 id="externalname">ExternalName</h3>
+<p>将服务映射到DNS，可用spec.externalName参数指定这些服务。</p>
+
+<h3 id="ingress">Ingress</h3>
+
+<p>Ingress事实上不是一种服务类型，它处理多个服务的前端，扮演着“智能路由”或集群入口的角色。</p>
+
+<p>Ingress可基于路径或子域名来路由流量到后端服务</p>
+
+<h3 id="指令">指令</h3>
+
+<p>创建组件
+<code class="language-plaintext highlighter-rouge">kubectl create -f xxx.yaml</code></p>
+
+<p>替换组件
+<code class="language-plaintext highlighter-rouge">kubectl replace -f xxx.yaml</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">kubectl get namespaces/nodes/pods/servces -o wide</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">kubectl proxy</code></p>
+
+<h3 id="指定不同节点部署-亲和力">指定不同节点部署 亲和力</h3>
+
+<p>anti-affinity</p>
+
+<p>Deployment &gt; ReplicaSet &gt; ReplicationController</p>
+
+<h2 id="网络插件">网络插件</h2>
+
+<ul>
+  <li>flannel</li>
+  <li>calico</li>
+  <li>openVSwitch</li>
+</ul>
+
+<h2 id="参考资料">参考资料</h2>
+
+<p>官方文档
+<a href="https://kubernetes.io/zh/docs/concepts/overview/components/">https://kubernetes.io/zh/docs/concepts/overview/components/</a></p>
+
+<p>kubernetes代码仓库
+<a href="https://github.com/kubernetes/kubernetes">https://github.com/kubernetes/kubernetes</a></p>
+
+<p>k8s docker相关博客
+<a href="https://www.cnblogs.com/whuanle/category/1908622.html">https://www.cnblogs.com/whuanle/category/1908622.html</a></p>
+
+<p>从零部署k8
+<a href="https://blog.csdn.net/qq_37240450/article/details/108601319">https://blog.csdn.net/qq_37240450/article/details/108601319</a></p>
+
+<p>server记录
+<a href="https://www.cnblogs.com/chiangchou/p/k8s-1.html">https://www.cnblogs.com/chiangchou/p/k8s-1.html</a></p>
+
+<p>CFSSL生成证书
+<a href="https://tsov.net/uupee/23714/">https://tsov.net/uupee/23714/</a></p>
+
+<p>CFSSL工具使用
+<a href="https://blog.51cto.com/u_9406836/2315174">https://blog.51cto.com/u_9406836/2315174</a></p>
+
+<p>minikube快速部署参考
+<a href="https://www.jianshu.com/p/ef400bfea973">https://www.jianshu.com/p/ef400bfea973</a></p>
+
+<p>图形控制界面是kubenetes默认图形界面
+<a href="https://kubernetes.io/zh/docs/tasks/access-application-cluster/web-ui-dashboard/">https://kubernetes.io/zh/docs/tasks/access-application-cluster/web-ui-dashboard/</a></p>
+
+<p>k8s配置博客
+<a href="https://blog.csdn.net/Meimei_X/article/details/124859295">https://blog.csdn.net/Meimei_X/article/details/124859295</a></p>
+
+<p>k8s dashboard配置
+<a href="https://blog.csdn.net/weixin_43509834/article/details/118517222">https://blog.csdn.net/weixin_43509834/article/details/118517222</a></p>
+
+<p>k8s资料库
+<a href="https://github.com/0voice/k8s_awesome_document">https://github.com/0voice/k8s_awesome_document</a></p>
+
+<p>k8s master高可用方案
+<a href="https://zhuanlan.zhihu.com/p/463169818">https://zhuanlan.zhihu.com/p/463169818</a></p>
+
+<p>RC与Deployment的区别
+<a href="https://blog.csdn.net/maquealone/article/details/86594363">https://blog.csdn.net/maquealone/article/details/86594363</a></p>
+
+<p>网络插件flannel&amp;calico
+<a href="https://blog.csdn.net/Thorne_lu/article/details/121391669">https://blog.csdn.net/Thorne_lu/article/details/121391669</a></p>
+
+<p>节点更换master
+<a href="https://blog.csdn.net/victorwjw/article/details/121949538">https://blog.csdn.net/victorwjw/article/details/121949538</a></p>
+
+<p>k8s 升级版本 1.18-8 -&gt; 1.18.20
+<a href="https://www.likecs.com/show-305437531.html">https://www.likecs.com/show-305437531.html</a></p>
+
+<p>k8s命令操作
+<a href="https://blog.csdn.net/weixin_57837701/article/details/121101776">https://blog.csdn.net/weixin_57837701/article/details/121101776</a></p>
+
+<p>k8s数据相关
+<a href="https://blog.csdn.net/weixin_43296313/article/details/121383992">https://blog.csdn.net/weixin_43296313/article/details/121383992</a></p>
+
+<p><a href="https://blog.csdn.net/Friendsofthewind/article/details/121541585">https://blog.csdn.net/Friendsofthewind/article/details/121541585</a></p>
+
+<p>k8s yaml工具
+<a href="https://blog.csdn.net/omaidb/article/details/121855353">https://blog.csdn.net/omaidb/article/details/121855353</a></p>
+
+<p>k8s 关键yaml的模板
+<a href="https://www.jianshu.com/p/a1ce94d98367">https://www.jianshu.com/p/a1ce94d98367</a></p>
+
+<p>yaml注释
+<a href="https://blog.csdn.net/m0_67505608/article/details/123471476">https://blog.csdn.net/m0_67505608/article/details/123471476</a></p>
+
+<p>Helm模板化部署
+<a href="https://blog.csdn.net/weixin_48190863/article/details/124390829">https://blog.csdn.net/weixin_48190863/article/details/124390829</a></p>
+
+<p><a href="https://blog.51cto.com/smallfa/5293928">https://blog.51cto.com/smallfa/5293928</a></p>
+
+        </article>
+        <hr>
+
+        
+        
+            
+            
+                
+                    
+                        
+                        <h2 id="similar_posts">Similar Posts</h2>
+                        <ul>
+                        
+                        <li class="relatedPost">
+                            <a href="/2023/07/02/k8s-nginx-dep/">K8S部署Nginx
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="/2023/07/01/k8s-mysql-pvc/">K8S部署单实例MySQL
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="/2023/06/20/k8s-deploy/">K8S基于kubeadmin的部署
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="/2022/01/02/kotlin-base/">Kotlin基础知识
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="/2021/12/07/offline-doc/">搭建内网离线文档
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+        
+            </ul>
+        
+
+        <div class="post-recent">
+    <div class="pre">
+        
+        <p><strong>上一篇</strong> <a href="/2022/12/01/redis-base/">Redis基础</a></p>
+        
+    </div>
+    <div class="nex">
+
+        
+        <p><strong>下一篇</strong> <a href="/2023/06/20/k8s-deploy/">K8S基于kubeadmin的部署</a></p>
+        
+    </div>
+</div>
+
+
+
+    </div>
+    <button class="anchor"><i class="fa fa-anchor"></i></button>
+    <div class="right">
+        <div class="wrap">
+
+            <!-- Content -->
+            <div class="side content">
+                <div>
+                    Content
+                </div>
+                <ul id="content-side" class="content-ul">
+                    
+                    <li><a href="#similar_posts">Similar Posts</a></li>
+                    
+                    <!-- <li><a href="#comments">Comments</a></li> -->
+                </ul>
+            </div>
+            <!-- 其他div框放到这里 -->
+            <!-- <div class="side">bbbb</div> -->
+        </div>
+    </div>
+</div>
+<script>
+/**
+ * target _blank
+ */
+(function() {
+    var aTags = document.querySelectorAll('article a:not([id])')
+    for (var i = 0; i < aTags.length; i++) {
+        aTags[i].setAttribute('target', '_blank')
+    }
+}());
+</script>
+<script src="/js/pageContent.js " charset="utf-8"></script>
+
+
+    <footer class="site-footer">
+
+
+    <div class="wrapper">
+
+        <p class="description">
+             刘波的个人博客 
+        </p>
+        <p class="contact">
+            Contact me at: 
+            <a href="https://github.com/liubo11" title="GitHub"><i class="fa fa-github" aria-hidden="true"></i></a>  
+            <a href="mailto:liubo233@qq.com" title="email"><i class="fa fa-envelope-o" aria-hidden="true"></i></a>        
+        </p>
+        <p>
+            本站总访问量<span id="busuanzi_value_site_pv"></span>次，本站访客数<span id="busuanzi_value_site_uv"></span>人次
+        </p>
+        <p class="power">
+            <span>
+                Site powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> & <a href="https://gitee.com" target="_blank">Gitee Pages</a>.
+            </span>
+            <span>
+                Theme designed by <a>HyG</a>.
+            </span>
+        </p>
+    </div>
+</footer>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    <div class="back-to-top">
+    <a href="#top" data-scroll>
+        <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    </a>
+</div>
+
+    <script src=" /js/main.js " charset="utf-8"></script>
+    <script src=" /js/smooth-scroll.min.js " charset="utf-8"></script>
+    <script type="text/javascript">
+      smoothScroll.init({
+        speed: 500, // Integer. How fast to complete the scroll in milliseconds
+        easing: 'easeInOutCubic', // Easing pattern to use
+        offset: 20, // Integer. How far to offset the scrolling anchor location in pixels
+      });
+    </script>
+    <!-- <script src=" /js/scroll.min.js " charset="utf-8"></script> -->
+  </body>
+
+</html>

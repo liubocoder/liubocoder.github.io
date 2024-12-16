@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>记录ONOS自动添加的swagger文档中文乱码问题</title>
+    <meta name="description" content="  问题问题在使用onos的doc时，添加中文的注释会在swagger页面显示乱码，原因是自动生成的swagger配置文件中写入了错误编码格式的字符。">
+
+    <link rel="shortcut icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_8v3czwksspqlg14i.css">
+    <link rel="stylesheet" href="/css/main.css ">
+    <link rel="canonical" href="http://localhost:4001/2021/11/09/onos-swagger/">
+    <link rel="alternate" type="application/rss+xml" title="刘波的学习记录" href="http://localhost:4001/feed.xml ">
+
+
+    <script>
+    // 百度统计代码
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b659da8ed4e65e6090d2d6a718d56b8f";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+
+
+
+
+</head>
+
+
+  <body>
+
+    <header id="top">
+    <div class="wrapper">
+        <a href="/" class="brand">刘波的学习记录</a>
+        <small>Android Go Python Java C Coder</small>
+        <button id="headerMenu" class="menu"><i class="fa fa-bars"></i></button>
+        <nav id="headerNav">
+            <ul>
+                <li>
+                    
+                    <a href="/">
+                    
+                        <i class="fa fa-home"></i>主页
+                    </a>
+                </li>
+
+                
+                    
+                    <li>
+                        
+                        <a href="/archive/">
+                        
+                            <i class="fa fa-archive"></i>归档
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/category/">
+                        
+                            <i class="fa fa-th-list"></i>分类
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/tag/">
+                        
+                            <i class="fa fa-tags"></i>标签
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/collection/">
+                        
+                            <i class="fa fa-bookmark"></i>收藏
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/about/">
+                        
+                            <i class="fa fa-heart"></i>关于
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/testtitle/">
+                        
+                            <i class="fa fa-ignore"></i>保留
+                        </a>
+                    </li>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            </ul>
+        </nav>
+    </div>
+</header>
+
+
+        <div class="page clearfix" post>
+    <div class="left">
+        <h1>记录ONOS自动添加的swagger文档中文乱码问题</h1>
+        <div class="label">
+
+            <div class="label-card">
+                <i class="fa fa-calendar"></i>2021-11-09
+            </div>
+
+            <div class="label-card">
+                <i class="fa fa-user"></i>liubo
+                
+            </div>
+            <div class="label-card">
+                <p><i class="fa fa-eye fa-x"></i><span id="busuanzi_value_page_pv"></span></p>
+            </div>
+            <div class="label-card">
+                
+            </div>
+
+            <div class="label-card">
+            
+
+
+<!-- <span class="point">•</span> -->
+<span class="categories">
+  <i class="fa fa-th-list"></i>
+  
+    
+        <a href="/category/#Build" title="Category: Build" rel="category">Build</a>
+    
+  
+
+  <!-- <span class="point">•</span> -->
+</span>
+
+
+            </div>
+
+            <div class="label-card">
+            
+<!-- <span class="point">•</span> -->
+<span class="pageTag">
+  <i class="fa fa-tags"></i>
+  
+    
+        <!--a href="/tag/#bazel" title="Tag: bazel" rel="tag">bazel</a-->
+        <a href="/tag/#bazel" title="Tag: bazel" rel="tag">bazel</a>&nbsp;
+    
+        <!--a href="/tag/#onos" title="Tag: onos" rel="tag">onos</a-->
+        <a href="/tag/#onos" title="Tag: onos" rel="tag">onos</a>
+    
+  
+
+</span>
+
+            </div>
+
+        </div>
+        <hr>
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+        <ul id="markdown-toc">
+  <li><a href="#问题" id="markdown-toc-问题">问题</a></li>
+  <li><a href="#定位问题原因" id="markdown-toc-定位问题原因">定位问题原因</a></li>
+  <li><a href="#解决问题" id="markdown-toc-解决问题">解决问题</a></li>
+</ul>
+
+<h2 id="问题">问题</h2>
+
+<p>在使用onos的doc时，添加中文的注释会在swagger页面显示乱码，原因是自动生成的swagger配置文件中写入了错误编码格式的字符。
+<img src="/assets/blog-img/build-onos-swagger-1-1.png" alt="img" /></p>
+
+<h2 id="定位问题原因">定位问题原因</h2>
+
+<p>查阅onos源码，发现该配置文件是项目中一个工具模块在编译时自动生成，路径/yourproject/tools/build/swagger</p>
+
+<p><img src="/assets/blog-img/build-onos-swagger-2-1.png" alt="img" /></p>
+
+<p>源码是使用qdox工具，将接口类中的注释信息读取出来，按照既定的格式解析生成swagger.json配置文件，我们能确定java文件肯定是UTF-8格式，
+因此只有执行时读取中文的时候jvm字符集不兼容导致的（排除javac，javac不识别的字符编码会直接编译出错）</p>
+
+<p><img src="/assets/blog-img/build-onos-swagger-2-2.png" alt="img" /></p>
+
+<p>为了再次确认，我在SwaggerGenerator.java中添加打印，打印当前虚拟机的默认字符集<code class="language-plaintext highlighter-rouge">Charset.defaultCharset()</code>，发现默认字符集是
+US-ASCII，再次印证上面的推断。</p>
+
+<h2 id="解决问题">解决问题</h2>
+
+<p>知道问题原因后，需要查看执行这段代码的地方在哪儿，在/yourproject/tools/build/bazel/osgi_java_library.bzl文件中，一个自定义rule</p>
+
+<p><img src="/assets/blog-img/build-onos-swagger-3-1.png" alt="img" /></p>
+
+<p>在命令实现的地方_swagger_json_impl，ctx.actions.run添加环境变量<code class="language-plaintext highlighter-rouge">env = {"_JAVA_OPTIONS":"-Dfile.encoding=UTF-8"}</code>，如下图所示</p>
+
+<p><img src="/assets/blog-img/build-onos-swagger-3-2.png" alt="img" /></p>
+
+<p>再次编译后，可以看到又出现可爱的中文了 :)</p>
+
+<p><img src="/assets/blog-img/build-onos-swagger-3-3.png" alt="img" /></p>
+
+        </article>
+        <hr>
+
+        
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+        
+        
+
+        <div class="post-recent">
+    <div class="pre">
+        
+        <p><strong>上一篇</strong> <a href="/2021/10/01/java-memery/">JVM内存模型</a></p>
+        
+    </div>
+    <div class="nex">
+
+        
+        <p><strong>下一篇</strong> <a href="/2021/12/07/offline-doc/">搭建内网离线文档</a></p>
+        
+    </div>
+</div>
+
+
+
+    </div>
+    <button class="anchor"><i class="fa fa-anchor"></i></button>
+    <div class="right">
+        <div class="wrap">
+
+            <!-- Content -->
+            <div class="side content">
+                <div>
+                    Content
+                </div>
+                <ul id="content-side" class="content-ul">
+                    
+                    <!-- <li><a href="#comments">Comments</a></li> -->
+                </ul>
+            </div>
+            <!-- 其他div框放到这里 -->
+            <!-- <div class="side">bbbb</div> -->
+        </div>
+    </div>
+</div>
+<script>
+/**
+ * target _blank
+ */
+(function() {
+    var aTags = document.querySelectorAll('article a:not([id])')
+    for (var i = 0; i < aTags.length; i++) {
+        aTags[i].setAttribute('target', '_blank')
+    }
+}());
+</script>
+<script src="/js/pageContent.js " charset="utf-8"></script>
+
+
+    <footer class="site-footer">
+
+
+    <div class="wrapper">
+
+        <p class="description">
+             刘波的个人博客 
+        </p>
+        <p class="contact">
+            Contact me at: 
+            <a href="https://github.com/liubo11" title="GitHub"><i class="fa fa-github" aria-hidden="true"></i></a>  
+            <a href="mailto:liubo233@qq.com" title="email"><i class="fa fa-envelope-o" aria-hidden="true"></i></a>        
+        </p>
+        <p>
+            本站总访问量<span id="busuanzi_value_site_pv"></span>次，本站访客数<span id="busuanzi_value_site_uv"></span>人次
+        </p>
+        <p class="power">
+            <span>
+                Site powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> & <a href="https://gitee.com" target="_blank">Gitee Pages</a>.
+            </span>
+            <span>
+                Theme designed by <a>HyG</a>.
+            </span>
+        </p>
+    </div>
+</footer>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    <div class="back-to-top">
+    <a href="#top" data-scroll>
+        <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    </a>
+</div>
+
+    <script src=" /js/main.js " charset="utf-8"></script>
+    <script src=" /js/smooth-scroll.min.js " charset="utf-8"></script>
+    <script type="text/javascript">
+      smoothScroll.init({
+        speed: 500, // Integer. How fast to complete the scroll in milliseconds
+        easing: 'easeInOutCubic', // Easing pattern to use
+        offset: 20, // Integer. How far to offset the scrolling anchor location in pixels
+      });
+    </script>
+    <!-- <script src=" /js/scroll.min.js " charset="utf-8"></script> -->
+  </body>
+
+</html>

@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>K8S基于kubeadmin的部署</title>
+    <meta name="description" content="  环境准备环境准备准备3台主机，初始安装Ubuntu server 22.04，能互通并连接互联网。可以考虑配置一台虚拟机，另外两台直接拷贝第一台，然后修改ip和hostname即可。我的环境：            主机      IP      掩码      网关                  mas...">
+
+    <link rel="shortcut icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_8v3czwksspqlg14i.css">
+    <link rel="stylesheet" href="/css/main.css ">
+    <link rel="canonical" href="http://localhost:4001/2023/06/20/k8s-deploy/">
+    <link rel="alternate" type="application/rss+xml" title="刘波的学习记录" href="http://localhost:4001/feed.xml ">
+
+
+    <script>
+    // 百度统计代码
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b659da8ed4e65e6090d2d6a718d56b8f";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+
+
+
+
+</head>
+
+
+  <body>
+
+    <header id="top">
+    <div class="wrapper">
+        <a href="/" class="brand">刘波的学习记录</a>
+        <small>Android Go Python Java C Coder</small>
+        <button id="headerMenu" class="menu"><i class="fa fa-bars"></i></button>
+        <nav id="headerNav">
+            <ul>
+                <li>
+                    
+                    <a href="/">
+                    
+                        <i class="fa fa-home"></i>主页
+                    </a>
+                </li>
+
+                
+                    
+                    <li>
+                        
+                        <a href="/archive/">
+                        
+                            <i class="fa fa-archive"></i>归档
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/category/">
+                        
+                            <i class="fa fa-th-list"></i>分类
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/tag/">
+                        
+                            <i class="fa fa-tags"></i>标签
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/collection/">
+                        
+                            <i class="fa fa-bookmark"></i>收藏
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/about/">
+                        
+                            <i class="fa fa-heart"></i>关于
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/testtitle/">
+                        
+                            <i class="fa fa-ignore"></i>保留
+                        </a>
+                    </li>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            </ul>
+        </nav>
+    </div>
+</header>
+
+
+        <div class="page clearfix" post>
+    <div class="left">
+        <h1>K8S基于kubeadmin的部署</h1>
+        <div class="label">
+
+            <div class="label-card">
+                <i class="fa fa-calendar"></i>2023-06-20
+            </div>
+
+            <div class="label-card">
+                <i class="fa fa-user"></i>liubo
+                
+            </div>
+            <div class="label-card">
+                <p><i class="fa fa-eye fa-x"></i><span id="busuanzi_value_page_pv"></span></p>
+            </div>
+            <div class="label-card">
+                
+            </div>
+
+            <div class="label-card">
+            
+
+
+<!-- <span class="point">•</span> -->
+<span class="categories">
+  <i class="fa fa-th-list"></i>
+  
+    
+        <a href="/category/#后端" title="Category: 后端" rel="category">后端</a>
+    
+  
+
+  <!-- <span class="point">•</span> -->
+</span>
+
+
+            </div>
+
+            <div class="label-card">
+            
+<!-- <span class="point">•</span> -->
+<span class="pageTag">
+  <i class="fa fa-tags"></i>
+  
+    
+        <!--a href="/tag/#blog" title="Tag: blog" rel="tag">blog</a-->
+        <a href="/tag/#blog" title="Tag: blog" rel="tag">blog</a>
+    
+  
+
+</span>
+
+            </div>
+
+        </div>
+        <hr>
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+        <ul id="markdown-toc">
+  <li><a href="#环境准备" id="markdown-toc-环境准备">环境准备</a></li>
+  <li><a href="#环境配置" id="markdown-toc-环境配置">环境配置</a></li>
+  <li><a href="#安装docker" id="markdown-toc-安装docker">安装docker</a></li>
+  <li><a href="#安装k8s" id="markdown-toc-安装k8s">安装K8S</a>    <ul>
+      <li><a href="#禁用swap" id="markdown-toc-禁用swap">禁用swap</a></li>
+      <li><a href="#修改cgroup管理器" id="markdown-toc-修改cgroup管理器">修改cgroup管理器</a></li>
+      <li><a href="#拷贝节点" id="markdown-toc-拷贝节点">拷贝节点</a></li>
+      <li><a href="#初始化" id="markdown-toc-初始化">初始化</a></li>
+      <li><a href="#执行配置" id="markdown-toc-执行配置">执行配置</a></li>
+      <li><a href="#配置calico" id="markdown-toc-配置calico">配置calico</a></li>
+      <li><a href="#添加node" id="markdown-toc-添加node">添加node</a></li>
+    </ul>
+  </li>
+  <li><a href="#kuboard的安装使用" id="markdown-toc-kuboard的安装使用">kuboard的安装使用</a></li>
+  <li><a href="#问题" id="markdown-toc-问题">问题</a>    <ul>
+      <li><a href="#默认时区utc修改成东八区" id="markdown-toc-默认时区utc修改成东八区">默认时区UTC，修改成东八区</a></li>
+      <li><a href="#kubectl禁用swap后-服务未启动" id="markdown-toc-kubectl禁用swap后-服务未启动">kubectl禁用swap后 服务未启动</a></li>
+      <li><a href="#启动卡在-a-start-job-is-runing-for-wait-for-network-to" id="markdown-toc-启动卡在-a-start-job-is-runing-for-wait-for-network-to">启动卡在 A start job is runing for wait for Network to</a></li>
+      <li><a href="#kubeadmin-init提示核心数太少" id="markdown-toc-kubeadmin-init提示核心数太少">kubeadmin init提示核心数太少</a></li>
+      <li><a href="#pod日志查看" id="markdown-toc-pod日志查看">pod日志查看</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="环境准备">环境准备</h2>
+
+<p>准备3台主机，初始安装Ubuntu server 22.04，能互通并连接互联网。</p>
+
+<p>可以考虑配置一台虚拟机，另外两台直接拷贝第一台，然后修改ip和hostname即可。</p>
+
+<p>我的环境：</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>主机</th>
+      <th>IP</th>
+      <th>掩码</th>
+      <th>网关</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>master1</td>
+      <td>192.168.2.21</td>
+      <td>24</td>
+      <td>192.168.2.1</td>
+    </tr>
+    <tr>
+      <td>node1</td>
+      <td>192.168.2.31</td>
+      <td>24</td>
+      <td>192.168.2.1</td>
+    </tr>
+    <tr>
+      <td>node2</td>
+      <td>192.168.2.32</td>
+      <td>24</td>
+      <td>192.168.2.1</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="环境配置">环境配置</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># 设置root用户密码
+sudo passwd root
+# 测试
+su root
+
+...
+
+# 修改ssh的配置，使得可以root登录
+vim /etc/ssh/sshd_config
+PermitRootLogin yes
+
+# 关闭防火墙
+ufw disable
+# 关闭虚拟机内存，注释最后一行/swap.img...
+vi /etc/fstab
+</code></pre></div></div>
+
+<h2 id="安装docker">安装docker</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apt install docker.io
+浏览器访问如下地址，使用阿里的镜像加速地址，按照说明配置docker
+https://cr.console.aliyun.com/cn-hangzhou/instances/mirrors
+
+</code></pre></div></div>
+
+<h2 id="安装k8s">安装K8S</h2>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cat &gt; install.sh &lt;&lt;- 'EOF'
+#!/bin/bash
+apt update &amp;&amp; apt install apt-transport-https
+curl -fsSL https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg | apt-key add -
+add-apt-repository "deb [arch=amd64] https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main"
+apt-get update
+apt-cache madison kubelet kubectl kubeadm |grep '1.22.7-00'
+apt install -y kubelet=1.22.7-00 kubectl=1.22.7-00 kubeadm=1.22.7-00
+EOF
+sh install.sh
+</code></pre></div></div>
+
+<h3 id="禁用swap">禁用swap</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vim /etc/default/kubelet
+KUBELET_EXTRA_ARGS="--fail-swap-on=false"
+systemctl daemon-reload &amp;&amp; systemctl restart kubelet
+</code></pre></div></div>
+
+<h3 id="修改cgroup管理器">修改cgroup管理器</h3>
+
+<p>系统中已存在cgroup的管理，防止使用两套cgroup导致冲突，所以将docker修改成已有的</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vim /etc/docker/daemon.json
+# 修改成
+{
+  "exec-opts": [
+    "native.cgroupdriver=systemd"
+  ],
+  "registry-mirrors": ["xxx"] #注意这个用自己的
+}
+
+systemctl restart docker
+# 这里可能启动失败，不影响，后续会正常的
+systemctl restart kubelet
+</code></pre></div></div>
+
+<h3 id="拷贝节点">拷贝节点</h3>
+
+<p>可以考虑配置一台虚拟机，另外两台直接拷贝第一台，然后修改ip和hostname即可。</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># 在如下配置中修改ip
+/etc/netplan/00-installer-config.yaml
+# 执行更改
+netplan apply
+</code></pre></div></div>
+
+<h3 id="初始化">初始化</h3>
+
+<p>master节点上执行如下命令</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubeadm init \
+  --kubernetes-version=v1.22.7 \
+  --image-repository registry.aliyuncs.com/google_containers \
+  --pod-network-cidr=10.24.0.0/16 \
+  --ignore-preflight-errors=Swap
+</code></pre></div></div>
+
+<h3 id="执行配置">执行配置</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+</code></pre></div></div>
+
+<h3 id="配置calico">配置calico</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl https://gitee.com/liubocode/blog-data/blob/master/k8s/calico.yaml -O
+kubectl apply -f calico.yaml
+</code></pre></div></div>
+
+<h3 id="添加node">添加node</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># 可以在master执行，查看token
+kubeadm token list
+# 若所有token过期，查看不到，直接再次创建一个
+kubeadm token create --print-join-command
+# 在node主机上执行如下命令，这里token是我环境中的token
+kubeadm join 192.2.21.130:6443 --token pc33qm.b01yctkipbm8ik24 \
+    --discovery-token-ca-cert-hash sha256:81887f66955a8373128671e4b5a8ae7e5944d1e3607c8e13045d5ba691566bf2
+</code></pre></div></div>
+
+<h2 id="kuboard的安装使用">kuboard的安装使用</h2>
+
+<p>使用docker方式部署v3版本更为方便，启动后可以使用config的方式用apiserver提供的api接口控制集群，所以最好部署在master节点上。配置好进入网页添加K8S集群，导入即可使用。</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo docker run -d \
+  --restart=unless-stopped \
+  --name=kuboard \
+  -p 80:80/tcp \
+  -p 10081:10081/tcp \
+  -e KUBOARD_ENDPOINT="http://192.168.2.21:80" \
+  -e KUBOARD_AGENT_SERVER_TCP_PORT="10081" \
+  -v /root/kuboard-data:/data \
+  eipwork/kuboard:v3
+</code></pre></div></div>
+
+<p>具体参考kuboard官方网站的教程</p>
+
+<p><a href="https://kuboard.cn/install/v3/install-built-in.html#%E9%83%A8%E7%BD%B2%E8%AE%A1%E5%88%92">https://kuboard.cn/install/v3/install-built-in.html#%E9%83%A8%E7%BD%B2%E8%AE%A1%E5%88%92</a></p>
+
+<h2 id="问题">问题</h2>
+
+<h3 id="默认时区utc修改成东八区">默认时区UTC，修改成东八区</h3>
+<p>ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime</p>
+
+<h3 id="kubectl禁用swap后-服务未启动">kubectl禁用swap后 服务未启动</h3>
+<p>是正常的，后续流程中配置完善后恢复</p>
+
+<h3 id="启动卡在-a-start-job-is-runing-for-wait-for-network-to">启动卡在 A start job is runing for wait for Network to</h3>
+<p><a href="https://blog.csdn.net/weixin_42300866/article/details/123712774">参考博客</a></p>
+
+<h3 id="kubeadmin-init提示核心数太少">kubeadmin init提示核心数太少</h3>
+<p>最初分配的cpu核心为1，改为2</p>
+
+<h3 id="pod日志查看">pod日志查看</h3>
+<p>若pod启动异常，通过命令查看日志</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl get pod -n dev
+# 类似于tail命令
+kubectl logs -f -n dev --tail 200 mysql-8474cf8649-xdc8f
+# 若容器能运行，有其他异常，可进入容器查看情况，类似docker
+# kubectl exec -it -n dev mysql-8474cf8649-xdc8f
+</code></pre></div></div>
+
+        </article>
+        <hr>
+
+        
+        
+            
+            
+                
+                    
+                        
+                        <h2 id="similar_posts">Similar Posts</h2>
+                        <ul>
+                        
+                        <li class="relatedPost">
+                            <a href="/2023/07/02/k8s-nginx-dep/">K8S部署Nginx
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="/2023/07/01/k8s-mysql-pvc/">K8S部署单实例MySQL
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="/2023/01/01/k8s-base/">K8S基础
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="/2022/01/02/kotlin-base/">Kotlin基础知识
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="/2021/12/07/offline-doc/">搭建内网离线文档
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+        
+            </ul>
+        
+
+        <div class="post-recent">
+    <div class="pre">
+        
+        <p><strong>上一篇</strong> <a href="/2023/01/01/k8s-base/">K8S基础</a></p>
+        
+    </div>
+    <div class="nex">
+
+        
+        <p><strong>下一篇</strong> <a href="/2023/07/01/k8s-mysql-pvc/">K8S部署单实例MySQL</a></p>
+        
+    </div>
+</div>
+
+
+
+    </div>
+    <button class="anchor"><i class="fa fa-anchor"></i></button>
+    <div class="right">
+        <div class="wrap">
+
+            <!-- Content -->
+            <div class="side content">
+                <div>
+                    Content
+                </div>
+                <ul id="content-side" class="content-ul">
+                    
+                    <li><a href="#similar_posts">Similar Posts</a></li>
+                    
+                    <!-- <li><a href="#comments">Comments</a></li> -->
+                </ul>
+            </div>
+            <!-- 其他div框放到这里 -->
+            <!-- <div class="side">bbbb</div> -->
+        </div>
+    </div>
+</div>
+<script>
+/**
+ * target _blank
+ */
+(function() {
+    var aTags = document.querySelectorAll('article a:not([id])')
+    for (var i = 0; i < aTags.length; i++) {
+        aTags[i].setAttribute('target', '_blank')
+    }
+}());
+</script>
+<script src="/js/pageContent.js " charset="utf-8"></script>
+
+
+    <footer class="site-footer">
+
+
+    <div class="wrapper">
+
+        <p class="description">
+             刘波的个人博客 
+        </p>
+        <p class="contact">
+            Contact me at: 
+            <a href="https://github.com/liubo11" title="GitHub"><i class="fa fa-github" aria-hidden="true"></i></a>  
+            <a href="mailto:liubo233@qq.com" title="email"><i class="fa fa-envelope-o" aria-hidden="true"></i></a>        
+        </p>
+        <p>
+            本站总访问量<span id="busuanzi_value_site_pv"></span>次，本站访客数<span id="busuanzi_value_site_uv"></span>人次
+        </p>
+        <p class="power">
+            <span>
+                Site powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> & <a href="https://gitee.com" target="_blank">Gitee Pages</a>.
+            </span>
+            <span>
+                Theme designed by <a>HyG</a>.
+            </span>
+        </p>
+    </div>
+</footer>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    <div class="back-to-top">
+    <a href="#top" data-scroll>
+        <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    </a>
+</div>
+
+    <script src=" /js/main.js " charset="utf-8"></script>
+    <script src=" /js/smooth-scroll.min.js " charset="utf-8"></script>
+    <script type="text/javascript">
+      smoothScroll.init({
+        speed: 500, // Integer. How fast to complete the scroll in milliseconds
+        easing: 'easeInOutCubic', // Easing pattern to use
+        offset: 20, // Integer. How far to offset the scrolling anchor location in pixels
+      });
+    </script>
+    <!-- <script src=" /js/scroll.min.js " charset="utf-8"></script> -->
+  </body>
+
+</html>

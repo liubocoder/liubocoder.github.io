@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Redis基础</title>
+    <meta name="description" content="  前言  docker部署redis          下载配置文件      前言本文主要是记录下redis的基础知识，环境搭建等。以下测试基于readis版本6.2.6。docker部署redisdocker安装redis，以下步骤仅用于开发环境，正式环境需要关闭外部访问配置以及存储配置等情况。下载配置文件...">
+
+    <link rel="shortcut icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_8v3czwksspqlg14i.css">
+    <link rel="stylesheet" href="/css/main.css ">
+    <link rel="canonical" href="http://localhost:4001/2022/12/01/redis-base/">
+    <link rel="alternate" type="application/rss+xml" title="刘波的学习记录" href="http://localhost:4001/feed.xml ">
+
+
+    <script>
+    // 百度统计代码
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b659da8ed4e65e6090d2d6a718d56b8f";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+
+
+
+
+</head>
+
+
+  <body>
+
+    <header id="top">
+    <div class="wrapper">
+        <a href="/" class="brand">刘波的学习记录</a>
+        <small>Android Go Python Java C Coder</small>
+        <button id="headerMenu" class="menu"><i class="fa fa-bars"></i></button>
+        <nav id="headerNav">
+            <ul>
+                <li>
+                    
+                    <a href="/">
+                    
+                        <i class="fa fa-home"></i>主页
+                    </a>
+                </li>
+
+                
+                    
+                    <li>
+                        
+                        <a href="/archive/">
+                        
+                            <i class="fa fa-archive"></i>归档
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/category/">
+                        
+                            <i class="fa fa-th-list"></i>分类
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/tag/">
+                        
+                            <i class="fa fa-tags"></i>标签
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/collection/">
+                        
+                            <i class="fa fa-bookmark"></i>收藏
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/about/">
+                        
+                            <i class="fa fa-heart"></i>关于
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/testtitle/">
+                        
+                            <i class="fa fa-ignore"></i>保留
+                        </a>
+                    </li>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            </ul>
+        </nav>
+    </div>
+</header>
+
+
+        <div class="page clearfix" post>
+    <div class="left">
+        <h1>Redis基础</h1>
+        <div class="label">
+
+            <div class="label-card">
+                <i class="fa fa-calendar"></i>2022-12-01
+            </div>
+
+            <div class="label-card">
+                <i class="fa fa-user"></i>liubo
+                
+            </div>
+            <div class="label-card">
+                <p><i class="fa fa-eye fa-x"></i><span id="busuanzi_value_page_pv"></span></p>
+            </div>
+            <div class="label-card">
+                
+            </div>
+
+            <div class="label-card">
+            
+
+
+<!-- <span class="point">•</span> -->
+<span class="categories">
+  <i class="fa fa-th-list"></i>
+  
+    
+        <a href="/category/#后端" title="Category: 后端" rel="category">后端</a>
+    
+  
+
+  <!-- <span class="point">•</span> -->
+</span>
+
+
+            </div>
+
+            <div class="label-card">
+            
+<!-- <span class="point">•</span> -->
+<span class="pageTag">
+  <i class="fa fa-tags"></i>
+  
+    
+        <!--a href="/tag/#redis" title="Tag: redis" rel="tag">redis</a-->
+        <a href="/tag/#redis" title="Tag: redis" rel="tag">redis</a>
+    
+  
+
+</span>
+
+            </div>
+
+        </div>
+        <hr>
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+        <ul id="markdown-toc">
+  <li><a href="#前言" id="markdown-toc-前言">前言</a></li>
+  <li><a href="#docker部署redis" id="markdown-toc-docker部署redis">docker部署redis</a>    <ul>
+      <li><a href="#下载配置文件" id="markdown-toc-下载配置文件">下载配置文件</a></li>
+      <li><a href="#配置文件修改" id="markdown-toc-配置文件修改">配置文件修改</a></li>
+      <li><a href="#安装redis-cli" id="markdown-toc-安装redis-cli">安装redis-cli</a></li>
+    </ul>
+  </li>
+  <li><a href="#redis集群基础" id="markdown-toc-redis集群基础">redis集群基础</a>    <ul>
+      <li><a href="#redis-主从模式配置" id="markdown-toc-redis-主从模式配置">redis 主从模式配置</a></li>
+      <li><a href="#redis-sentinel-哨兵模式" id="markdown-toc-redis-sentinel-哨兵模式">redis-sentinel 哨兵模式</a></li>
+      <li><a href="#使用docker_compose配置主从" id="markdown-toc-使用docker_compose配置主从">使用docker_compose配置主从</a></li>
+      <li><a href="#redis-cluster模式集群部署" id="markdown-toc-redis-cluster模式集群部署">redis cluster模式集群部署</a></li>
+      <li><a href="#启动节点" id="markdown-toc-启动节点">启动节点</a></li>
+    </ul>
+  </li>
+  <li><a href="#redis基础指令" id="markdown-toc-redis基础指令">redis基础指令</a></li>
+  <li><a href="#其他" id="markdown-toc-其他">其他</a></li>
+</ul>
+
+<h2 id="前言">前言</h2>
+<p>本文主要是记录下redis的基础知识，环境搭建等。以下测试基于readis版本6.2.6。</p>
+
+<h2 id="docker部署redis">docker部署redis</h2>
+<p>docker安装redis，以下步骤仅用于开发环境，正式环境需要关闭外部访问配置以及存储配置等情况。</p>
+
+<h3 id="下载配置文件">下载配置文件</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>redis
+wget http://download.redis.io/redis-stable/redis.conf
+sentinel哨兵
+wget http://download.redis.io/redis-stable/sentinel.conf
+</code></pre></div></div>
+
+<h3 id="配置文件修改">配置文件修改</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bind 127.0.0.1   # 注释掉这部分，这是限制redis只能本地访问
+protected-mode no #默认yes，开启保护模式，限制为本地访问
+appendonly yes 可选开启AOF持久化，默认no
+
+注意映射的路径
+docker run --name cdmp-redis -d -p 6379:6379 \
+    --restart=always \
+    -v /home/color-data/docker-redis/conf/redis.conf:/etc/redis/redis.conf \
+    -v /home/color-data/docker-redis/data:/data  \
+    redis:6.2.6 \
+    redis-server /etc/redis/redis.conf
+</code></pre></div></div>
+
+<h3 id="安装redis-cli">安装redis-cli</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget http://download.redis.io/redis-stable.tar.gz
+tar xvzf redis-stable.tar.gz
+cd redis-stable
+make redis-cli
+cp src/redis-cli /usr/bin
+
+#连接redis
+redis-cli -c -h 127.0.0.1 -p 6379 -a '123456'
+    -c 启用集群模式
+    -h 主机
+    -p 端口
+    -a 密码
+</code></pre></div></div>
+
+<h2 id="redis集群基础">redis集群基础</h2>
+<h3 id="redis-主从模式配置">redis 主从模式配置</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>注意事项
+1. master一般是可读可写，slave只读
+2. 密码设置相同
+3. 开启持久化存储
+
+仅需要在从redis-cli上执行命令；版本4（包括版本4）之前命令为slaveof，版本4之后为REPLICAOF，实测都是可以用的
+127.0.0.1:6379&gt; SLAVEOF 10.0.0.31 6379
+OK
+127.0.0.1:6379&gt; CONFIG SET masterauth 123456
+OK
+
+测试master连接同步情况
+127.0.0.1:6379&gt; sync
+
+某些情况从redis需要提升成master
+127.0.0.1:6379&gt; SLAVEOF no one
+OK
+
+
+docker run --name redis_ms_m1 -d \
+    -v /home/liubo/test/redis/cluster_cfg/redis_master_slave.conf:/etc/redis/redis.conf \
+    --net mynetwork --ip 172.100.5.100 \
+    redis:6.2.6 \
+    redis-server /etc/redis/redis.conf
+docker run --name redis_ms_s1 -d \
+    -v /home/liubo/test/redis/cluster_cfg/redis_master_slave_sl.conf:/etc/redis/redis.conf \
+    --net mynetwork --ip 172.100.5.101 \
+    redis:6.2.6 \
+    redis-server /etc/redis/redis.conf
+docker run --name redis_ms_s2 -d \
+    -v /home/liubo/test/redis/cluster_cfg/redis_master_slave_sl.conf:/etc/redis/redis.conf \
+    --net mynetwork --ip 172.100.5.102 \
+    redis:6.2.6 \
+    redis-server /etc/redis/redis.conf
+</code></pre></div></div>
+
+<h3 id="redis-sentinel-哨兵模式">redis-sentinel 哨兵模式</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>配置文件中修改如下字段
+#sentinel monitor &lt;master-name&gt; &lt;ip&gt; &lt;redis-port&gt; &lt;quorum&gt; quorum表示当master挂了，多少个哨兵同意后将slave改为master
+sentinel monitor mymaster 172.100.5.100 6379 2
+sentinel down-after-milliseconds mymaster 5000
+sentinel parallel-syncs mymaster 1
+sentinel failover-timeout mymaster 5000
+无密码忽略
+sentinel auth-pass mymaster 123456
+
+创建一个目录用于放置配置文件，并赋予读写权限
+mkdir sentinel1
+chmod -R 0777 sentinel1
+
+运行容器
+docker run --name redis_st1 -d \
+    -v /home/liubo/test/redis/cluster_cfg/sentinel1/:/etc/redis/ \
+    --net mynetwork --ip 172.100.4.100 \
+    --privileged=true \
+    redis:6.2.6 \
+    redis-server /etc/redis/sentinel.conf --sentinel
+</code></pre></div></div>
+
+<h3 id="使用docker_compose配置主从">使用docker_compose配置主从</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>redis_cluster.yaml
+
+version: '3'
+services:
+    redis-master:
+        container_name: "redis-master"
+        image: redis
+        command: ["redis-server", "/etc/redis/redis.conf"]
+        privileged: true
+        volumes:
+            - "./r1:/etc/redis"
+        networks:
+            test-st-net:
+                ipv4_address: "172.20.1.1"
+        environment:
+            - TZ=Asia/Shanghai
+            - LANG=en_US.UTF-8
+    redis-slave1:
+        container_name: "redis-slave1"
+        image: redis
+        command: ["redis-server", "/etc/redis/redis.conf"]
+        privileged: true
+        volumes:
+            - "./r2:/etc/redis"
+        networks:
+            test-st-net:
+                ipv4_address: "172.20.2.1"
+        environment:
+            - TZ=Asia/Shanghai
+            - LANG=en_US.UTF-8
+        depends_on:
+            - redis-master
+    redis-slave2:
+        container_name: "redis-slave2"
+        image: redis
+        command: ["redis-server", "/etc/redis/redis.conf"]
+        privileged: true
+        volumes:
+            - "./r3:/etc/redis"
+        networks:
+            test-st-net:
+                ipv4_address: "172.20.3.1"
+        environment:
+            - TZ=Asia/Shanghai
+            - LANG=en_US.UTF-8
+        depends_on:
+            - redis-master
+networks:
+  test-st-net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.200.0.0/16
+
+目前还没找到docker-compose配置在容器中启动两个服务的方法，用一下方案测试
+master中查看从redis
+redis-cli info replication
+slave容器中指定master
+redis-cli slaveof 172.20.1.1 6379
+所有redis容器中启动哨兵
+redis-sentinel /etc/redis/sentinel.conf &amp;
+
+</code></pre></div></div>
+<h3 id="redis-cluster模式集群部署">redis cluster模式集群部署</h3>
+
+<p>配置修改如下字段</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># 添加端口号，在同一台主机上部署需要注意端口号
+port 6379
+# 设置为守护进程，配置 redis 后台运行
+daemonize yes
+# pid 文件，会自动创建的，直接指定目录
+pidfile /var/run/redis_6379.pid
+# 数据保存位置
+dir /opt/redis-cluster/redis-data/6379
+# 关闭保护模式，若开启，远程连接不能CURD
+protected-mode no
+# 开启集群
+cluster-enabled yes
+# 集群配置文件，不需要我们维护，首次启动的时候会自动生成
+cluster-config-file nodes_6379.conf
+# 请求超时时间
+cluster-node-timeout 10100
+# 开启 AOF 日志，集群需要开启
+appendonly yes
+# 日志等级
+loglevel notice
+# 配置日志文件
+logfile /var/redis/log.log
+# 开启密码，并配置密码多少
+requirepass 123456
+</code></pre></div></div>
+
+<h3 id="启动节点">启动节点</h3>
+<p>启动所有节点后，在任意节点执行如下指令</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>redis-cli --cluster create [node1_ip]:[node1_port]...[noden_ip]:[noden_port] --cluster-replicas 1
+# cluster-replicas 1 表示master与slave的比例 这里是1:1
+# 执行不报错 表示集群创建完成
+</code></pre></div></div>
+
+<p>docker 模拟测试3master 3slave情况</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run --name redis_m1 -d \
+    -v /home/liubo/test/redis/cluster_cfg/redis_100.conf:/etc/redis/redis.conf \
+    --net mynetwork --ip 172.100.6.100 \
+    redis:6.2.6 \
+    redis-server /etc/redis/redis.conf
+
+docker run --name redis_m2 -d \
+    -v /home/liubo/test/redis/cluster_cfg/redis_100.conf:/etc/redis/redis.conf \
+    --net mynetwork --ip 172.100.6.101 \
+    redis:6.2.6 \
+    redis-server /etc/redis/redis.conf
+
+docker run --name redis_m3 -d \
+    -v /home/liubo/test/redis/cluster_cfg/redis_100.conf:/etc/redis/redis.conf \
+    --net mynetwork --ip 172.100.6.102 \
+    redis:6.2.6 \
+    redis-server /etc/redis/redis.conf
+
+docker run --name redis_s1 -d \
+    -v /home/liubo/test/redis/cluster_cfg/redis_100.conf:/etc/redis/redis.conf \
+    --net mynetwork --ip 172.100.6.110 \
+    redis:6.2.6 \
+    redis-server /etc/redis/redis.conf
+
+docker run --name redis_s2 -d \
+    -v /home/liubo/test/redis/cluster_cfg/redis_100.conf:/etc/redis/redis.conf \
+    --net mynetwork --ip 172.100.6.111 \
+    redis:6.2.6 \
+    redis-server /etc/redis/redis.conf
+
+docker run --name redis_s3 -d \
+    -v /home/liubo/test/redis/cluster_cfg/redis_100.conf:/etc/redis/redis.conf \
+    --net mynetwork --ip 172.100.6.112 \
+    redis:6.2.6 \
+    redis-server /etc/redis/redis.conf
+</code></pre></div></div>
+
+<h2 id="redis基础指令">redis基础指令</h2>
+
+<p>keys *
+keys prxx*</p>
+
+<p>keys太消耗性能，可考虑如下指令替换
+scan 0 match k* count 100</p>
+
+<p>集群模式下keys 或 scan只能扫描当前节点，若需要扫描所有节点，需要循环调用所有节点，然后自己组装数据</p>
+
+<p>select 0 选择库
+flushdb  清空当前
+flushall 清空所有</p>
+
+<p>查看应用信息等
+info replication</p>
+
+<h2 id="其他">其他</h2>
+
+<p>Redis实现分布式锁 key</p>
+
+<p>Redis实现消息队列 方案1 pub/sub（缺点会丢失）  方案2 stream</p>
+
+<p>Redis实现生产者消费者模型  list</p>
+
+<p>Redis实现积分排行 zset</p>
+
+<p>redis基础使用
+<a href="https://mp.weixin.qq.com/s/7ct-mvSIaT3o4-tsMaKRWA">https://mp.weixin.qq.com/s/7ct-mvSIaT3o4-tsMaKRWA</a></p>
+
+<p>从服务器read-only配置
+<a href="https://blog.csdn.net/qq_34430649/article/details/104303384">https://blog.csdn.net/qq_34430649/article/details/104303384</a></p>
+
+<p>集群配置相关资料
+<a href="https://blog.csdn.net/lt9700/article/details/120696365">https://blog.csdn.net/lt9700/article/details/120696365</a>
+<a href="https://blog.csdn.net/weixin_61718665/article/details/122951094">https://blog.csdn.net/weixin_61718665/article/details/122951094</a></p>
+
+<p>参考docker-compose基本使用方法
+<a href="https://blog.csdn.net/pushiqiang/article/details/78682323">https://blog.csdn.net/pushiqiang/article/details/78682323</a></p>
+
+        </article>
+        <hr>
+
+        
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+        
+
+        <div class="post-recent">
+    <div class="pre">
+        
+        <p><strong>上一篇</strong> <a href="/2022/10/06/mysql-base/">MySQL基础</a></p>
+        
+    </div>
+    <div class="nex">
+
+        
+        <p><strong>下一篇</strong> <a href="/2023/01/01/k8s-base/">K8S基础</a></p>
+        
+    </div>
+</div>
+
+
+
+    </div>
+    <button class="anchor"><i class="fa fa-anchor"></i></button>
+    <div class="right">
+        <div class="wrap">
+
+            <!-- Content -->
+            <div class="side content">
+                <div>
+                    Content
+                </div>
+                <ul id="content-side" class="content-ul">
+                    
+                    <!-- <li><a href="#comments">Comments</a></li> -->
+                </ul>
+            </div>
+            <!-- 其他div框放到这里 -->
+            <!-- <div class="side">bbbb</div> -->
+        </div>
+    </div>
+</div>
+<script>
+/**
+ * target _blank
+ */
+(function() {
+    var aTags = document.querySelectorAll('article a:not([id])')
+    for (var i = 0; i < aTags.length; i++) {
+        aTags[i].setAttribute('target', '_blank')
+    }
+}());
+</script>
+<script src="/js/pageContent.js " charset="utf-8"></script>
+
+
+    <footer class="site-footer">
+
+
+    <div class="wrapper">
+
+        <p class="description">
+             刘波的个人博客 
+        </p>
+        <p class="contact">
+            Contact me at: 
+            <a href="https://github.com/liubo11" title="GitHub"><i class="fa fa-github" aria-hidden="true"></i></a>  
+            <a href="mailto:liubo233@qq.com" title="email"><i class="fa fa-envelope-o" aria-hidden="true"></i></a>        
+        </p>
+        <p>
+            本站总访问量<span id="busuanzi_value_site_pv"></span>次，本站访客数<span id="busuanzi_value_site_uv"></span>人次
+        </p>
+        <p class="power">
+            <span>
+                Site powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> & <a href="https://gitee.com" target="_blank">Gitee Pages</a>.
+            </span>
+            <span>
+                Theme designed by <a>HyG</a>.
+            </span>
+        </p>
+    </div>
+</footer>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    <div class="back-to-top">
+    <a href="#top" data-scroll>
+        <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    </a>
+</div>
+
+    <script src=" /js/main.js " charset="utf-8"></script>
+    <script src=" /js/smooth-scroll.min.js " charset="utf-8"></script>
+    <script type="text/javascript">
+      smoothScroll.init({
+        speed: 500, // Integer. How fast to complete the scroll in milliseconds
+        easing: 'easeInOutCubic', // Easing pattern to use
+        offset: 20, // Integer. How far to offset the scrolling anchor location in pixels
+      });
+    </script>
+    <!-- <script src=" /js/scroll.min.js " charset="utf-8"></script> -->
+  </body>
+
+</html>

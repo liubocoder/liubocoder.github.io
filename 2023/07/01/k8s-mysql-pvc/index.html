@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>K8S部署单实例MySQL</title>
+    <meta name="description" content="  前言前言所有节点基于Ubuntu server 22.04版本，介绍K8S部署单实例的mysql的流程，采用nfs作为存储类，configmap作为配置存储。">
+
+    <link rel="shortcut icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_8v3czwksspqlg14i.css">
+    <link rel="stylesheet" href="/css/main.css ">
+    <link rel="canonical" href="http://localhost:4001/2023/07/01/k8s-mysql-pvc/">
+    <link rel="alternate" type="application/rss+xml" title="刘波的学习记录" href="http://localhost:4001/feed.xml ">
+
+
+    <script>
+    // 百度统计代码
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b659da8ed4e65e6090d2d6a718d56b8f";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+
+
+
+
+</head>
+
+
+  <body>
+
+    <header id="top">
+    <div class="wrapper">
+        <a href="/" class="brand">刘波的学习记录</a>
+        <small>Android Go Python Java C Coder</small>
+        <button id="headerMenu" class="menu"><i class="fa fa-bars"></i></button>
+        <nav id="headerNav">
+            <ul>
+                <li>
+                    
+                    <a href="/">
+                    
+                        <i class="fa fa-home"></i>主页
+                    </a>
+                </li>
+
+                
+                    
+                    <li>
+                        
+                        <a href="/archive/">
+                        
+                            <i class="fa fa-archive"></i>归档
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/category/">
+                        
+                            <i class="fa fa-th-list"></i>分类
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/tag/">
+                        
+                            <i class="fa fa-tags"></i>标签
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/collection/">
+                        
+                            <i class="fa fa-bookmark"></i>收藏
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/about/">
+                        
+                            <i class="fa fa-heart"></i>关于
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/testtitle/">
+                        
+                            <i class="fa fa-ignore"></i>保留
+                        </a>
+                    </li>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            </ul>
+        </nav>
+    </div>
+</header>
+
+
+        <div class="page clearfix" post>
+    <div class="left">
+        <h1>K8S部署单实例MySQL</h1>
+        <div class="label">
+
+            <div class="label-card">
+                <i class="fa fa-calendar"></i>2023-07-01
+            </div>
+
+            <div class="label-card">
+                <i class="fa fa-user"></i>liubo
+                
+            </div>
+            <div class="label-card">
+                <p><i class="fa fa-eye fa-x"></i><span id="busuanzi_value_page_pv"></span></p>
+            </div>
+            <div class="label-card">
+                
+            </div>
+
+            <div class="label-card">
+            
+
+
+<!-- <span class="point">•</span> -->
+<span class="categories">
+  <i class="fa fa-th-list"></i>
+  
+    
+        <a href="/category/#后端" title="Category: 后端" rel="category">后端</a>
+    
+  
+
+  <!-- <span class="point">•</span> -->
+</span>
+
+
+            </div>
+
+            <div class="label-card">
+            
+<!-- <span class="point">•</span> -->
+<span class="pageTag">
+  <i class="fa fa-tags"></i>
+  
+    
+        <!--a href="/tag/#blog" title="Tag: blog" rel="tag">blog</a-->
+        <a href="/tag/#blog" title="Tag: blog" rel="tag">blog</a>
+    
+  
+
+</span>
+
+            </div>
+
+        </div>
+        <hr>
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+        <ul id="markdown-toc">
+  <li><a href="#前言" id="markdown-toc-前言">前言</a></li>
+  <li><a href="#安装nfs服务并配置共享目录" id="markdown-toc-安装nfs服务并配置共享目录">安装NFS服务，并配置共享目录</a></li>
+  <li><a href="#k8s相关yaml文件" id="markdown-toc-k8s相关yaml文件">K8S相关yaml文件</a></li>
+</ul>
+
+<h2 id="前言">前言</h2>
+
+<p>所有节点基于Ubuntu server 22.04版本，介绍K8S部署单实例的mysql的流程，采用nfs作为存储类，configmap作为配置存储。</p>
+
+<h2 id="安装nfs服务并配置共享目录">安装NFS服务，并配置共享目录</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apt install nfs-server
+mkdir -p /nfs/mysql/data
+# mysql会修改其数据文件的所属关系，这里将权限给全，否则后续会导致mysql启动失败
+chmod 777 -R /nfs
+echo "/nfs *(rw,sync,no_root_squash)" &gt;&gt; /etc/exports
+systemctl restart nfs-server
+# 查看共享目录
+exportfs -v
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>参数</th>
+      <th>作用</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>ro</td>
+      <td>只读</td>
+    </tr>
+    <tr>
+      <td>rw</td>
+      <td>读写</td>
+    </tr>
+    <tr>
+      <td>root_squash</td>
+      <td>当NFS客户端以root管理员访问时，映射为NFS服务器的匿名用户</td>
+    </tr>
+    <tr>
+      <td>no_root_squash</td>
+      <td>当NFS客户端以root管理员访问时，映射为NFS服务器的root管理员</td>
+    </tr>
+    <tr>
+      <td>sync</td>
+      <td>同时将数据写入到内存与硬盘中，保证不丢失数据</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>可以安装nfs-common工具进行测试</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apt-get install nfs-common
+
+mount -t nfs &lt;部署nfs服务的主机ip地址&gt;:/nfs/mysql/data /nfs_local
+# 查看挂载情况，也可以测试目录下的文件读写
+df -h
+# 卸载
+umount /nfs
+
+</code></pre></div></div>
+
+<h2 id="k8s相关yaml文件">K8S相关yaml文件</h2>
+
+<p>以下配置使用了我环境中的IP地址，可对应修改成新环境的IP即可</p>
+
+<p>编写mysql-pv.yaml，用于创建pv</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># 定义持久卷信息
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  # pv是没有namespace属性的，它是一种跨namespace的共享资源
+  name: pv-1gi
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  # 存储类，具有相同存储类名称的pv和pvc才能进行绑定
+  storageClassName: nfs
+  nfs:
+    path: /nfs/mysql/data
+    server: 192.168.2.32
+
+
+</code></pre></div></div>
+
+<p>编写mysql-pvc.yaml，用于创建pvc</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># 定义mysql的持久卷声明信息
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  namespace: dev
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  # 存储类，具有相同存储类名称的pv和pvc才能进行绑定
+  storageClassName: nfs
+</code></pre></div></div>
+
+<p>编写mysql-config.yaml，用于添加配置</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config
+  namespace: dev
+  labels:
+    app: mysql
+data:
+  my.cnf: |-
+    [mysqld]
+    sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
+    max_connections=2000
+    datadir=/var/lib/mysql
+    socket=/var/lib/mysql/mysql.sock
+
+    server-id=1
+    binlog_format=mixed
+    log-bin=mysql-bin
+    log-error=/var/lib/mysqld.log
+    pid-file=/var/lib/mysqld.pid
+
+    skip-host-cache
+    skip-name-resolve
+    symbolic-links=0
+
+    [mysqldump]
+    quick
+    quote-names
+    max_allowed_packet      = 16M
+
+    [mysql]
+    default-character-set=utf8mb4
+
+    [client]
+    socket=/var/lib/mysql/mysql.sock
+    default-character-set=utf8mb4
+</code></pre></div></div>
+
+<p>编写mysql-dev.yaml，用于部署pod</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># 定义mysql的Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mysql
+  name: mysql
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - image: mysql:8.0
+        name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "123456"
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: mysqlvolume
+          mountPath: /var/lib/mysql
+        - name: mysqlconf
+          mountPath: /etc/mysql/conf.d/my.cnf
+          # 不存在则创建文件
+          subPath: my.cnf
+      volumes:
+      - name: mysqlvolume
+        # 使用pvc
+        persistentVolumeClaim:
+          claimName: mysql-pvc
+        # 使用配置
+      - name: mysqlconf
+        configMap:
+          name: mysql-config
+</code></pre></div></div>
+
+<p>编写mysql-svc.yaml，用于对外提供服务</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#定义mysql的Service
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: svc-mysql
+  name: svc-mysql
+  namespace: dev
+spec:
+  selector:
+    app: mysql
+  type: NodePort
+  ports:
+  - port: 3306
+    protocol: TCP
+    targetPort: 3306
+    nodePort: 30306
+</code></pre></div></div>
+
+<p>剩下的依次执行上述yaml</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl create namespace dev
+kubectl create -f mysql-pv.yaml
+kubectl create -f mysql-pvc.yaml
+kubectl create -f mysql-config.yaml
+kubectl create -f mysql-dev.yaml
+kubectl create -f mysql-svc.yaml
+</code></pre></div></div>
+
+<p>使用<code class="language-plaintext highlighter-rouge">kubectl get pod -n dev</code>命令查看pod情况</p>
+
+<p>外部通过子节点的ip:30306访问数据库</p>
+
+
+        </article>
+        <hr>
+
+        
+        
+            
+            
+                
+                    
+                        
+                        <h2 id="similar_posts">Similar Posts</h2>
+                        <ul>
+                        
+                        <li class="relatedPost">
+                            <a href="/2023/07/02/k8s-nginx-dep/">K8S部署Nginx
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="/2023/06/20/k8s-deploy/">K8S基于kubeadmin的部署
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="/2023/01/01/k8s-base/">K8S基础
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="/2022/01/02/kotlin-base/">Kotlin基础知识
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="/2021/12/07/offline-doc/">搭建内网离线文档
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+        
+            </ul>
+        
+
+        <div class="post-recent">
+    <div class="pre">
+        
+        <p><strong>上一篇</strong> <a href="/2023/06/20/k8s-deploy/">K8S基于kubeadmin的部署</a></p>
+        
+    </div>
+    <div class="nex">
+
+        
+        <p><strong>下一篇</strong> <a href="/2023/07/02/k8s-nginx-dep/">K8S部署Nginx</a></p>
+        
+    </div>
+</div>
+
+
+
+    </div>
+    <button class="anchor"><i class="fa fa-anchor"></i></button>
+    <div class="right">
+        <div class="wrap">
+
+            <!-- Content -->
+            <div class="side content">
+                <div>
+                    Content
+                </div>
+                <ul id="content-side" class="content-ul">
+                    
+                    <li><a href="#similar_posts">Similar Posts</a></li>
+                    
+                    <!-- <li><a href="#comments">Comments</a></li> -->
+                </ul>
+            </div>
+            <!-- 其他div框放到这里 -->
+            <!-- <div class="side">bbbb</div> -->
+        </div>
+    </div>
+</div>
+<script>
+/**
+ * target _blank
+ */
+(function() {
+    var aTags = document.querySelectorAll('article a:not([id])')
+    for (var i = 0; i < aTags.length; i++) {
+        aTags[i].setAttribute('target', '_blank')
+    }
+}());
+</script>
+<script src="/js/pageContent.js " charset="utf-8"></script>
+
+
+    <footer class="site-footer">
+
+
+    <div class="wrapper">
+
+        <p class="description">
+             刘波的个人博客 
+        </p>
+        <p class="contact">
+            Contact me at: 
+            <a href="https://github.com/liubo11" title="GitHub"><i class="fa fa-github" aria-hidden="true"></i></a>  
+            <a href="mailto:liubo233@qq.com" title="email"><i class="fa fa-envelope-o" aria-hidden="true"></i></a>        
+        </p>
+        <p>
+            本站总访问量<span id="busuanzi_value_site_pv"></span>次，本站访客数<span id="busuanzi_value_site_uv"></span>人次
+        </p>
+        <p class="power">
+            <span>
+                Site powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> & <a href="https://gitee.com" target="_blank">Gitee Pages</a>.
+            </span>
+            <span>
+                Theme designed by <a>HyG</a>.
+            </span>
+        </p>
+    </div>
+</footer>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    <div class="back-to-top">
+    <a href="#top" data-scroll>
+        <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    </a>
+</div>
+
+    <script src=" /js/main.js " charset="utf-8"></script>
+    <script src=" /js/smooth-scroll.min.js " charset="utf-8"></script>
+    <script type="text/javascript">
+      smoothScroll.init({
+        speed: 500, // Integer. How fast to complete the scroll in milliseconds
+        easing: 'easeInOutCubic', // Easing pattern to use
+        offset: 20, // Integer. How far to offset the scrolling anchor location in pixels
+      });
+    </script>
+    <!-- <script src=" /js/scroll.min.js " charset="utf-8"></script> -->
+  </body>
+
+</html>

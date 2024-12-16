@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>MySQL基础</title>
+    <meta name="description" content="  前言  docker 安装mysql前言本文主要是记录下mysql的基础知识，环境搭建等。以下测试基于mysql版本5.7.31。docker 安装mysqldocker的mysql配置文件路径/etc/mysql/mysql.conf.d/mysqld.cnf，这里可以永久修改sql_mod参数[mysql...">
+
+    <link rel="shortcut icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_8v3czwksspqlg14i.css">
+    <link rel="stylesheet" href="/css/main.css ">
+    <link rel="canonical" href="http://localhost:4001/2022/10/06/mysql-base/">
+    <link rel="alternate" type="application/rss+xml" title="刘波的学习记录" href="http://localhost:4001/feed.xml ">
+
+
+    <script>
+    // 百度统计代码
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b659da8ed4e65e6090d2d6a718d56b8f";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+
+
+
+
+</head>
+
+
+  <body>
+
+    <header id="top">
+    <div class="wrapper">
+        <a href="/" class="brand">刘波的学习记录</a>
+        <small>Android Go Python Java C Coder</small>
+        <button id="headerMenu" class="menu"><i class="fa fa-bars"></i></button>
+        <nav id="headerNav">
+            <ul>
+                <li>
+                    
+                    <a href="/">
+                    
+                        <i class="fa fa-home"></i>主页
+                    </a>
+                </li>
+
+                
+                    
+                    <li>
+                        
+                        <a href="/archive/">
+                        
+                            <i class="fa fa-archive"></i>归档
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/category/">
+                        
+                            <i class="fa fa-th-list"></i>分类
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/tag/">
+                        
+                            <i class="fa fa-tags"></i>标签
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/collection/">
+                        
+                            <i class="fa fa-bookmark"></i>收藏
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/about/">
+                        
+                            <i class="fa fa-heart"></i>关于
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/testtitle/">
+                        
+                            <i class="fa fa-ignore"></i>保留
+                        </a>
+                    </li>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            </ul>
+        </nav>
+    </div>
+</header>
+
+
+        <div class="page clearfix" post>
+    <div class="left">
+        <h1>MySQL基础</h1>
+        <div class="label">
+
+            <div class="label-card">
+                <i class="fa fa-calendar"></i>2022-10-06
+            </div>
+
+            <div class="label-card">
+                <i class="fa fa-user"></i>liubo
+                
+            </div>
+            <div class="label-card">
+                <p><i class="fa fa-eye fa-x"></i><span id="busuanzi_value_page_pv"></span></p>
+            </div>
+            <div class="label-card">
+                
+            </div>
+
+            <div class="label-card">
+            
+
+
+<!-- <span class="point">•</span> -->
+<span class="categories">
+  <i class="fa fa-th-list"></i>
+  
+    
+        <a href="/category/#后端" title="Category: 后端" rel="category">后端</a>
+    
+  
+
+  <!-- <span class="point">•</span> -->
+</span>
+
+
+            </div>
+
+            <div class="label-card">
+            
+<!-- <span class="point">•</span> -->
+<span class="pageTag">
+  <i class="fa fa-tags"></i>
+  
+    
+        <!--a href="/tag/#mysql" title="Tag: mysql" rel="tag">mysql</a-->
+        <a href="/tag/#mysql" title="Tag: mysql" rel="tag">mysql</a>
+    
+  
+
+</span>
+
+            </div>
+
+        </div>
+        <hr>
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+        <ul id="markdown-toc">
+  <li><a href="#前言" id="markdown-toc-前言">前言</a></li>
+  <li><a href="#docker-安装mysql" id="markdown-toc-docker-安装mysql">docker 安装mysql</a>    <ul>
+      <li><a href="#可能遇到的问题" id="markdown-toc-可能遇到的问题">可能遇到的问题</a></li>
+    </ul>
+  </li>
+  <li><a href="#mysql操作" id="markdown-toc-mysql操作">mysql操作</a>    <ul>
+      <li><a href="#连接数据库" id="markdown-toc-连接数据库">连接数据库</a></li>
+      <li><a href="#常用的基础命令" id="markdown-toc-常用的基础命令">常用的基础命令</a></li>
+      <li><a href="#用户管理" id="markdown-toc-用户管理">用户管理</a></li>
+      <li><a href="#数据运维" id="markdown-toc-数据运维">数据运维</a></li>
+    </ul>
+  </li>
+  <li><a href="#其他" id="markdown-toc-其他">其他</a></li>
+</ul>
+
+<h2 id="前言">前言</h2>
+
+<p>本文主要是记录下mysql的基础知识，环境搭建等。以下测试基于mysql版本5.7.31。</p>
+
+<h2 id="docker-安装mysql">docker 安装mysql</h2>
+
+<p>docker的mysql配置文件路径<code class="language-plaintext highlighter-rouge">/etc/mysql/mysql.conf.d/mysqld.cnf</code>，这里可以永久修改sql_mod参数</p>
+
+<p>[mysqld]  &lt;–这个条目下追加如下</p>
+
+<p><code class="language-plaintext highlighter-rouge">sql-mode="NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"</code></p>
+
+<p>用于修改sql-mode，这个属性会影响到mysql的一些行为，例如检查时间格式等。</p>
+
+<p>运行mysql容器</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run -p 3306:3306 --restart=always \
+    --name mysql \
+    -e MYSQL_ROOT_PASSWORD=123456 \
+    -v /home/color-data/docker-mysql:/var/lib/mysql \
+    -d mysql:5.7.31
+</code></pre></div></div>
+
+<p>mysql客户端使用yum安装的，其他linux可用各自的管理器安装</p>
+
+<h3 id="可能遇到的问题">可能遇到的问题</h3>
+
+<ol>
+  <li>外部不能访问，可查看防火墙</li>
+  <li>docker报iptables问题，重启docker服务</li>
+  <li>mysql.conf配置不可用，查看该文件的权限，权限为777的文件mysql会忽略</li>
+</ol>
+
+<h2 id="mysql操作">mysql操作</h2>
+
+<h3 id="连接数据库">连接数据库</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. mysql命令连接
+shell&gt; mysql -hlocalhost -uroot -p123456
+</code></pre></div></div>
+
+<h3 id="常用的基础命令">常用的基础命令</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. 创建数据库
+create database name;
+
+2. 选择数据库
+use databasename;
+
+3. 删除数据库
+drop database name; #无提示
+mysqladmin drop databasename; #有提示
+
+4. 展示所有表
+show tables;
+
+5. 表详情
+describe tablename;
+desc tablename;
+
+6. 去除重复字段
+select 中加上distinct
+
+7. 显示数据库版本、当前日期、当前时间
+select version(),current_date,current_time;
+</code></pre></div></div>
+
+<h3 id="用户管理">用户管理</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. 创建用户
+grant select on [数据库].* to [用户名]@[登录ip/域名] identified by "密码"
+
+2. 创建为特定数据库创建特定权限的用户
+grant select, insert, update, delete, create,drop on yourdb.* to yourname@'%' identified by '123456';
+
+3. 修改用户密码，将所有用户名为root的用户密码改为123456
+update user set authentication_string=password("123456") where user="root";
+
+4. 修改root本地连接的密码，localhost可修改成其他ip
+set password for root@localhost = password('123456');
+
+5. 修改root用户任意连接的密码
+set password for root@'%' = password('123456');
+
+6. 删除用户
+revoke all privileges on *.* from zhangsan@'%';
+delete from user where user='zhangsan' and host='%';
+
+7. 更新用户信息记得刷新
+flush privileges;
+
+</code></pre></div></div>
+
+<h3 id="数据运维">数据运维</h3>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. mysqldummp导出
+
+mysqldump -h主机名 -P端口 -u用户名 -p密码 参数1，参数2.... &gt; 备份文件.sql
+
+mysqldump -h127.0.0.1 -uroot -p123456 myTestDb --column-statistics=0  &gt; temp.sql
+-n  只导出数据，不创建数据库
+-t  只导出数据，不创建表
+-d  不导出数据，只导出表结构
+--column-statistics=0 命令行客户端版本与数据库服务器版本不匹配导致 8.0连接5.7的时候会报错误，添加该参数屏蔽
+
+2. source导入（需要登录到mysql服务器中）
+mysql&gt;source /home/mysql/xx.sql
+
+3. mysql导入
+mysql -h127.0.0.1 -uroot -p123456 &lt; /home/mysql/xx.sql
+</code></pre></div></div>
+
+<h2 id="其他">其他</h2>
+
+<p>双master
+<a href="https://blog.51cto.com/sookk8/563519">https://blog.51cto.com/sookk8/563519</a></p>
+
+<p>主从同步方案，实现读写分离
+<a href="https://blog.csdn.net/qq_15092079/article/details/81672920">https://blog.csdn.net/qq_15092079/article/details/81672920</a></p>
+
+<p>数据类型的宽度
+<a href="https://blog.csdn.net/qq_43842093/article/details/120582507">https://blog.csdn.net/qq_43842093/article/details/120582507</a></p>
+
+<p>mysqldump
+<a href="https://blog.csdn.net/zhou920786312/article/details/123354503">https://blog.csdn.net/zhou920786312/article/details/123354503</a></p>
+
+<p><a href="https://blog.csdn.net/zhou920786312/category_6817806.html">https://blog.csdn.net/zhou920786312/category_6817806.html</a></p>
+
+<p>一些sql语句模板
+<a href="https://www.zhihu.com/question/384673958/answer/2573153508">https://www.zhihu.com/question/384673958/answer/2573153508</a>
+例如：单纯去重使用distinct，效率相对group by要高一点
+select distinct [字段1, 字段2 …] from <tabName></tabName></p>
+
+<p>MySQL如何加锁的
+<a href="https://xiaolincoding.com/mysql/lock/how_to_lock.html">https://xiaolincoding.com/mysql/lock/how_to_lock.html</a></p>
+
+<p>MySQL部署 三种方案
+<a href="https://www.cnblogs.com/90s-blog/p/15937673.html">https://www.cnblogs.com/90s-blog/p/15937673.html</a></p>
+
+
+        </article>
+        <hr>
+
+        
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+        
+
+        <div class="post-recent">
+    <div class="pre">
+        
+        <p><strong>上一篇</strong> <a href="/2022/05/24/centos7/">centos7初始化配置</a></p>
+        
+    </div>
+    <div class="nex">
+
+        
+        <p><strong>下一篇</strong> <a href="/2022/12/01/redis-base/">Redis基础</a></p>
+        
+    </div>
+</div>
+
+
+
+    </div>
+    <button class="anchor"><i class="fa fa-anchor"></i></button>
+    <div class="right">
+        <div class="wrap">
+
+            <!-- Content -->
+            <div class="side content">
+                <div>
+                    Content
+                </div>
+                <ul id="content-side" class="content-ul">
+                    
+                    <!-- <li><a href="#comments">Comments</a></li> -->
+                </ul>
+            </div>
+            <!-- 其他div框放到这里 -->
+            <!-- <div class="side">bbbb</div> -->
+        </div>
+    </div>
+</div>
+<script>
+/**
+ * target _blank
+ */
+(function() {
+    var aTags = document.querySelectorAll('article a:not([id])')
+    for (var i = 0; i < aTags.length; i++) {
+        aTags[i].setAttribute('target', '_blank')
+    }
+}());
+</script>
+<script src="/js/pageContent.js " charset="utf-8"></script>
+
+
+    <footer class="site-footer">
+
+
+    <div class="wrapper">
+
+        <p class="description">
+             刘波的个人博客 
+        </p>
+        <p class="contact">
+            Contact me at: 
+            <a href="https://github.com/liubo11" title="GitHub"><i class="fa fa-github" aria-hidden="true"></i></a>  
+            <a href="mailto:liubo233@qq.com" title="email"><i class="fa fa-envelope-o" aria-hidden="true"></i></a>        
+        </p>
+        <p>
+            本站总访问量<span id="busuanzi_value_site_pv"></span>次，本站访客数<span id="busuanzi_value_site_uv"></span>人次
+        </p>
+        <p class="power">
+            <span>
+                Site powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> & <a href="https://gitee.com" target="_blank">Gitee Pages</a>.
+            </span>
+            <span>
+                Theme designed by <a>HyG</a>.
+            </span>
+        </p>
+    </div>
+</footer>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    <div class="back-to-top">
+    <a href="#top" data-scroll>
+        <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    </a>
+</div>
+
+    <script src=" /js/main.js " charset="utf-8"></script>
+    <script src=" /js/smooth-scroll.min.js " charset="utf-8"></script>
+    <script type="text/javascript">
+      smoothScroll.init({
+        speed: 500, // Integer. How fast to complete the scroll in milliseconds
+        easing: 'easeInOutCubic', // Easing pattern to use
+        offset: 20, // Integer. How far to offset the scrolling anchor location in pixels
+      });
+    </script>
+    <!-- <script src=" /js/scroll.min.js " charset="utf-8"></script> -->
+  </body>
+
+</html>

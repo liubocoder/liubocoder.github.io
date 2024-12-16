@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Android平台测试框架</title>
+    <meta name="description" content="  前言前言自动化测试是大型项目必然的一个趋势，模块较多功能点太多，若使用完整的测试用例覆盖并用人工测试，将耗费大量的人力，因此有了自动化测试方案。Google也提供了官方的测试框架，以下简单记录下Android中测试框架的使用，构建工具使用gradle。">
+
+    <link rel="shortcut icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_8v3czwksspqlg14i.css">
+    <link rel="stylesheet" href="/css/main.css ">
+    <link rel="canonical" href="http://localhost:4001/2020/07/16/android-test/">
+    <link rel="alternate" type="application/rss+xml" title="刘波的学习记录" href="http://localhost:4001/feed.xml ">
+
+
+    <script>
+    // 百度统计代码
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b659da8ed4e65e6090d2d6a718d56b8f";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+
+
+
+
+</head>
+
+
+  <body>
+
+    <header id="top">
+    <div class="wrapper">
+        <a href="/" class="brand">刘波的学习记录</a>
+        <small>Android Go Python Java C Coder</small>
+        <button id="headerMenu" class="menu"><i class="fa fa-bars"></i></button>
+        <nav id="headerNav">
+            <ul>
+                <li>
+                    
+                    <a href="/">
+                    
+                        <i class="fa fa-home"></i>主页
+                    </a>
+                </li>
+
+                
+                    
+                    <li>
+                        
+                        <a href="/archive/">
+                        
+                            <i class="fa fa-archive"></i>归档
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/category/">
+                        
+                            <i class="fa fa-th-list"></i>分类
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/tag/">
+                        
+                            <i class="fa fa-tags"></i>标签
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/collection/">
+                        
+                            <i class="fa fa-bookmark"></i>收藏
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/about/">
+                        
+                            <i class="fa fa-heart"></i>关于
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/testtitle/">
+                        
+                            <i class="fa fa-ignore"></i>保留
+                        </a>
+                    </li>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            </ul>
+        </nav>
+    </div>
+</header>
+
+
+        <div class="page clearfix" post>
+    <div class="left">
+        <h1>Android平台测试框架</h1>
+        <div class="label">
+
+            <div class="label-card">
+                <i class="fa fa-calendar"></i>2020-07-16
+            </div>
+
+            <div class="label-card">
+                <i class="fa fa-user"></i>liubo
+                
+            </div>
+            <div class="label-card">
+                <p><i class="fa fa-eye fa-x"></i><span id="busuanzi_value_page_pv"></span></p>
+            </div>
+            <div class="label-card">
+                
+            </div>
+
+            <div class="label-card">
+            
+
+
+<!-- <span class="point">•</span> -->
+<span class="categories">
+  <i class="fa fa-th-list"></i>
+  
+    
+        <a href="/category/#Android" title="Category: Android" rel="category">Android</a>
+    
+  
+
+  <!-- <span class="point">•</span> -->
+</span>
+
+
+            </div>
+
+            <div class="label-card">
+            
+<!-- <span class="point">•</span> -->
+<span class="pageTag">
+  <i class="fa fa-tags"></i>
+  
+    
+        <!--a href="/tag/#test" title="Tag: test" rel="tag">test</a-->
+        <a href="/tag/#test" title="Tag: test" rel="tag">test</a>
+    
+  
+
+</span>
+
+            </div>
+
+        </div>
+        <hr>
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+        <ul id="markdown-toc">
+  <li><a href="#前言" id="markdown-toc-前言">前言</a></li>
+  <li><a href="#测试运行环境" id="markdown-toc-测试运行环境">测试运行环境</a>    <ul>
+      <li><a href="#本地jvm环境" id="markdown-toc-本地jvm环境">本地JVM环境</a></li>
+      <li><a href="#系统环境" id="markdown-toc-系统环境">系统环境</a></li>
+    </ul>
+  </li>
+  <li><a href="#项目结构" id="markdown-toc-项目结构">项目结构</a>    <ul>
+      <li><a href="#test模块" id="markdown-toc-test模块">test模块</a></li>
+      <li><a href="#androidtest模块" id="markdown-toc-androidtest模块">androidTest模块</a></li>
+    </ul>
+  </li>
+  <li><a href="#详细方案" id="markdown-toc-详细方案">详细方案</a>    <ul>
+      <li><a href="#一些依赖框架组件的测试" id="markdown-toc-一些依赖框架组件的测试">一些依赖框架组件的测试</a></li>
+      <li><a href="#单activity测试" id="markdown-toc-单activity测试">单Activity测试</a></li>
+      <li><a href="#service测试" id="markdown-toc-service测试">Service测试</a></li>
+      <li><a href="#其他单元测试" id="markdown-toc-其他单元测试">其他单元测试</a></li>
+      <li><a href="#使用robolectric测试" id="markdown-toc-使用robolectric测试">使用Robolectric测试</a></li>
+    </ul>
+  </li>
+  <li><a href="#脚本执行" id="markdown-toc-脚本执行">脚本执行</a></li>
+  <li><a href="#其他" id="markdown-toc-其他">其他</a></li>
+  <li><a href="#参考资料" id="markdown-toc-参考资料">参考资料</a></li>
+</ul>
+
+<h2 id="前言">前言</h2>
+
+<p>自动化测试是大型项目必然的一个趋势，模块较多功能点太多，若使用完整的测试用例覆盖并用人工测试，将耗费大量的人力，因此有了自动化测试方案。Google也提供了官方的测试框架，以下简单记录下Android中测试框架的使用，构建工具使用gradle。</p>
+
+<h2 id="测试运行环境">测试运行环境</h2>
+
+<h3 id="本地jvm环境">本地JVM环境</h3>
+
+<ul>
+  <li>本地JVM：一般不依赖Android框架的单元测试，直接在JVM中运行</li>
+  <li>模拟设备：Robolectric，是一个模拟运行环境，相当于一些库模拟了Framwork层</li>
+</ul>
+
+<h3 id="系统环境">系统环境</h3>
+<p>完整的Android系统</p>
+
+<ul>
+  <li>真实设备</li>
+  <li>虚拟机：例如AS中的模拟器，Genymotion或者Virtual Box安装Android镜像等</li>
+</ul>
+
+<h2 id="项目结构">项目结构</h2>
+<p>Android构建插件规定了两类测试代码：<code class="language-plaintext highlighter-rouge">test</code>、<code class="language-plaintext highlighter-rouge">androidTest</code>，这两类的默认目录在src之下，目录名为test、androidTest，可以通过build.gradle修改</p>
+
+<h3 id="test模块">test模块</h3>
+<p>用于进行本地的单元测试，除了Junit之外，还可以包含Robolectric测试代码</p>
+
+<h3 id="androidtest模块">androidTest模块</h3>
+<p>用于对Android组件相关的测试</p>
+
+<h2 id="详细方案">详细方案</h2>
+
+<h3 id="一些依赖框架组件的测试">一些依赖框架组件的测试</h3>
+<p>在androidTest下创建测试类，其他NetworkUtil依赖Context</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@RunWith(AndroidJUnit4.class)
+public class ExampleInstrumentedTest {
+    @Test
+    public void useAppContext() {
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        assertEquals("com.gwcd.myapplication", appContext.getPackageName());
+        NetworkUtil.sContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        assertEquals("816", NetworkUtil.getSsid());
+    }
+}
+</code></pre></div></div>
+
+<h3 id="单activity测试">单Activity测试</h3>
+<p>在androidTest下创建测试类，使用Espresso框架进行ui测试</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@RunWith(AndroidJUnit4.class)
+@LargeTest
+public class SeActivityTest {
+
+    @Before
+    public void launchActivity() {
+        Intent intent = new Intent();
+        intent.setClass(getApplicationContext(), SeActivity.class);
+        intent.putExtra("handle", 978234);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        ActivityScenario.launch(intent);
+    }
+
+    @Test
+    public void testInteger() {
+        performOperation(123);
+    }
+    @Test
+    public void testDouble() {
+        performOperation(123.31887);
+    }
+
+    private void performOperation(double input) {
+        onView(withId(R.id.et_input)).perform(typeText(String.valueOf(input)), closeSoftKeyboard());
+        onView(withId(R.id.btn_commit)).perform(click());
+        onView(withId(R.id.tv_result)).check(matches(withText(String.valueOf(input))));
+    }
+}
+</code></pre></div></div>
+
+<h3 id="service测试">Service测试</h3>
+<p>在androidTest下创建测试类</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@MediumTest
+@RunWith(AndroidJUnit4.class)
+public class MyServiceTest {
+    @Rule
+    public final ServiceTestRule mServiceRule = new ServiceTestRule();
+
+    @Test
+    public void testWithBoundService() throws TimeoutException {
+        Intent serviceIntent = new Intent(getApplicationContext(), MyService.class);
+        IBinder binder = mServiceRule.bindService(serviceIntent);
+        MyService service = ((MyService.MyBinder) binder).getService();
+        assertThat(service.getRandomColor(), is(any(Integer.class)));
+    }
+}
+</code></pre></div></div>
+
+<h3 id="其他单元测试">其他单元测试</h3>
+<p>在test下创建测试类，对于非依赖AndroidSDK代码的可以考虑使用Junit直接在本地JVM测试</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public class ExampleUnitTest {
+    @Test
+    public void test_tools_base() {
+        assertTrue(StringUtil.isEmpty(null));
+        assertTrue(StringUtil.isEmpty(""));
+        assertFalse(StringUtil.isEmpty("an"));
+        assertFalse(StringUtil.isEmpty(" ! 123fd"));
+
+        assertFalse(StringUtil.isNotEmpty(null));
+        assertFalse(StringUtil.isNotEmpty(""));
+        assertTrue(StringUtil.isNotEmpty("an"));
+        assertTrue(StringUtil.isNotEmpty(" ! 123fd"));
+    }
+}
+</code></pre></div></div>
+
+<h3 id="使用robolectric测试">使用Robolectric测试</h3>
+<p>在test下创建测试类，这里仅简单试用了一下Robolectric方案测试，对于考虑使用远端linux服务器做自动化测试方案的可以考虑使用Robolectric</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@RunWith(RobolectricTestRunner.class)
+public class MyRoboTest {
+
+    @Test
+    public void clicking_to_SeActivity() {
+        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
+        activity.findViewById(R.id.btn1).performClick();
+
+        Intent toNext = new Intent(activity, SeActivity.class);
+        Intent actual = shadowOf(RuntimeEnvironment.getApplication()).getNextStartedActivity();
+        assertEquals(toNext.getComponent(), actual.getComponent());
+    }
+}
+</code></pre></div></div>
+
+<h2 id="脚本执行">脚本执行</h2>
+<p>在项目目录下执行gradle脚本<code class="language-plaintext highlighter-rouge">./gradlew testDebug cAT</code>，默认在yourAppPath/build/reports生成报告，可以使浏览器打开查看</p>
+
+<h2 id="其他">其他</h2>
+
+<p>以上项目可以查看<a href="https://gitee.com/liubocode/my-test-samples.git">示例代码</a></p>
+
+<p>还有其他测试相关的模块，例如模拟数据、接口、性能测试、兼容性测试等后面有需要再查阅官方资料。</p>
+
+<h2 id="参考资料">参考资料</h2>
+
+<p><a href="https://developer.android.google.cn/training/testing/fundamentals">官方测试文档</a></p>
+
+<p><a href="https://github.com/android/testing-samples.git">开源的测试示例</a></p>
+
+        </article>
+        <hr>
+
+        
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+        
+        
+
+        <div class="post-recent">
+    <div class="pre">
+        
+        <p><strong>上一篇</strong> <a href="/2020/06/11/android-jni/">JNI在Android平台的使用</a></p>
+        
+    </div>
+    <div class="nex">
+
+        
+        <p><strong>下一篇</strong> <a href="/2020/08/10/android-inject/">Android依赖注入框架Hilt</a></p>
+        
+    </div>
+</div>
+
+
+
+    </div>
+    <button class="anchor"><i class="fa fa-anchor"></i></button>
+    <div class="right">
+        <div class="wrap">
+
+            <!-- Content -->
+            <div class="side content">
+                <div>
+                    Content
+                </div>
+                <ul id="content-side" class="content-ul">
+                    
+                    <!-- <li><a href="#comments">Comments</a></li> -->
+                </ul>
+            </div>
+            <!-- 其他div框放到这里 -->
+            <!-- <div class="side">bbbb</div> -->
+        </div>
+    </div>
+</div>
+<script>
+/**
+ * target _blank
+ */
+(function() {
+    var aTags = document.querySelectorAll('article a:not([id])')
+    for (var i = 0; i < aTags.length; i++) {
+        aTags[i].setAttribute('target', '_blank')
+    }
+}());
+</script>
+<script src="/js/pageContent.js " charset="utf-8"></script>
+
+
+    <footer class="site-footer">
+
+
+    <div class="wrapper">
+
+        <p class="description">
+             刘波的个人博客 
+        </p>
+        <p class="contact">
+            Contact me at: 
+            <a href="https://github.com/liubo11" title="GitHub"><i class="fa fa-github" aria-hidden="true"></i></a>  
+            <a href="mailto:liubo233@qq.com" title="email"><i class="fa fa-envelope-o" aria-hidden="true"></i></a>        
+        </p>
+        <p>
+            本站总访问量<span id="busuanzi_value_site_pv"></span>次，本站访客数<span id="busuanzi_value_site_uv"></span>人次
+        </p>
+        <p class="power">
+            <span>
+                Site powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> & <a href="https://gitee.com" target="_blank">Gitee Pages</a>.
+            </span>
+            <span>
+                Theme designed by <a>HyG</a>.
+            </span>
+        </p>
+    </div>
+</footer>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    <div class="back-to-top">
+    <a href="#top" data-scroll>
+        <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    </a>
+</div>
+
+    <script src=" /js/main.js " charset="utf-8"></script>
+    <script src=" /js/smooth-scroll.min.js " charset="utf-8"></script>
+    <script type="text/javascript">
+      smoothScroll.init({
+        speed: 500, // Integer. How fast to complete the scroll in milliseconds
+        easing: 'easeInOutCubic', // Easing pattern to use
+        offset: 20, // Integer. How far to offset the scrolling anchor location in pixels
+      });
+    </script>
+    <!-- <script src=" /js/scroll.min.js " charset="utf-8"></script> -->
+  </body>
+
+</html>

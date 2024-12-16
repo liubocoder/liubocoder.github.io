@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Android依赖注入框架Hilt</title>
+    <meta name="description" content="  前言  初始化  直接使用前言Hilt依赖注入框架 优点：解耦，使用简单，便于扩展和测试初始化Application都需要使用@HiltAndroidApp注释，用于框架生成一些操作项目依赖/build.gradlebuildscript {    ...    dependencies {        ....">
+
+    <link rel="shortcut icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_8v3czwksspqlg14i.css">
+    <link rel="stylesheet" href="/css/main.css ">
+    <link rel="canonical" href="http://localhost:4001/2020/08/10/android-inject/">
+    <link rel="alternate" type="application/rss+xml" title="刘波的学习记录" href="http://localhost:4001/feed.xml ">
+
+
+    <script>
+    // 百度统计代码
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b659da8ed4e65e6090d2d6a718d56b8f";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+
+
+
+
+</head>
+
+
+  <body>
+
+    <header id="top">
+    <div class="wrapper">
+        <a href="/" class="brand">刘波的学习记录</a>
+        <small>Android Go Python Java C Coder</small>
+        <button id="headerMenu" class="menu"><i class="fa fa-bars"></i></button>
+        <nav id="headerNav">
+            <ul>
+                <li>
+                    
+                    <a href="/">
+                    
+                        <i class="fa fa-home"></i>主页
+                    </a>
+                </li>
+
+                
+                    
+                    <li>
+                        
+                        <a href="/archive/">
+                        
+                            <i class="fa fa-archive"></i>归档
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/category/">
+                        
+                            <i class="fa fa-th-list"></i>分类
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/tag/">
+                        
+                            <i class="fa fa-tags"></i>标签
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/collection/">
+                        
+                            <i class="fa fa-bookmark"></i>收藏
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/about/">
+                        
+                            <i class="fa fa-heart"></i>关于
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/testtitle/">
+                        
+                            <i class="fa fa-ignore"></i>保留
+                        </a>
+                    </li>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            </ul>
+        </nav>
+    </div>
+</header>
+
+
+        <div class="page clearfix" post>
+    <div class="left">
+        <h1>Android依赖注入框架Hilt</h1>
+        <div class="label">
+
+            <div class="label-card">
+                <i class="fa fa-calendar"></i>2020-08-10
+            </div>
+
+            <div class="label-card">
+                <i class="fa fa-user"></i>liubo
+                
+            </div>
+            <div class="label-card">
+                <p><i class="fa fa-eye fa-x"></i><span id="busuanzi_value_page_pv"></span></p>
+            </div>
+            <div class="label-card">
+                
+            </div>
+
+            <div class="label-card">
+            
+
+
+<!-- <span class="point">•</span> -->
+<span class="categories">
+  <i class="fa fa-th-list"></i>
+  
+    
+        <a href="/category/#Android" title="Category: Android" rel="category">Android</a>
+    
+  
+
+  <!-- <span class="point">•</span> -->
+</span>
+
+
+            </div>
+
+            <div class="label-card">
+            
+<!-- <span class="point">•</span> -->
+<span class="pageTag">
+  <i class="fa fa-tags"></i>
+  
+    
+        <!--a href="/tag/#annotation" title="Tag: annotation" rel="tag">annotation</a-->
+        <a href="/tag/#annotation" title="Tag: annotation" rel="tag">annotation</a>
+    
+  
+
+</span>
+
+            </div>
+
+        </div>
+        <hr>
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+        <ul id="markdown-toc">
+  <li><a href="#前言" id="markdown-toc-前言">前言</a></li>
+  <li><a href="#初始化" id="markdown-toc-初始化">初始化</a></li>
+  <li><a href="#直接使用" id="markdown-toc-直接使用">直接使用</a></li>
+  <li><a href="#构造函数参数" id="markdown-toc-构造函数参数">构造函数参数</a></li>
+  <li><a href="#外部接口" id="markdown-toc-外部接口">外部接口</a></li>
+  <li><a href="#多种接口实现" id="markdown-toc-多种接口实现">多种接口实现</a></li>
+  <li><a href="#组件作用域" id="markdown-toc-组件作用域">组件作用域</a></li>
+  <li><a href="#默认绑定组件" id="markdown-toc-默认绑定组件">默认绑定组件</a></li>
+  <li><a href="#测试代码" id="markdown-toc-测试代码">测试代码</a></li>
+  <li><a href="#参考文档" id="markdown-toc-参考文档">参考文档</a></li>
+</ul>
+
+<h2 id="前言">前言</h2>
+
+<p>Hilt依赖注入框架 优点：解耦，使用简单，便于扩展和测试</p>
+
+<h2 id="初始化">初始化</h2>
+
+<p>Application都需要使用@HiltAndroidApp注释，用于框架生成一些操作</p>
+
+<p>项目依赖</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/build.gradle
+buildscript {
+    ...
+    dependencies {
+        ...
+        classpath 'com.google.dagger:hilt-android-gradle-plugin:2.28-alpha'
+    }
+}
+
+...
+
+app/build.gradle
+plugins {
+  id 'com.android.application'
+  id 'dagger.hilt.android.plugin'
+}
+
+android {
+    ...
+}
+
+dependencies {
+    ...
+    implementation "com.google.dagger:hilt-android:2.28-alpha"
+    annotationProcessor "com.google.dagger:hilt-android-compiler:2.28-alpha"
+}
+
+</code></pre></div></div>
+
+<h2 id="直接使用">直接使用</h2>
+
+<p>使用@AndroidEntryPoint注释标记需要依赖注入的Android类</p>
+
+<p>Android类是指如下这些及其子类，该注释具有强制传递性，例如：Fragment使用注释后，依赖该Fragment的所有Activity都需要添加该注释</p>
+<blockquote>
+  <ul>
+    <li>Activity</li>
+    <li>Fragment</li>
+    <li>View</li>
+    <li>Service</li>
+    <li>BroadcastReceiver</li>
+  </ul>
+</blockquote>
+
+<p>使用@Inject注释，注入对象，会在Android类合适的生命周期回调中注入</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@AndroidEntryPoint
+public class ExampleActivity extends AppCompatActivity {
+
+  @Inject
+  AnalyticsAdapter analytics;
+  ...
+}
+
+public class AnalyticsAdapter {
+    @Inject
+    public AnalyticsAdapter() {
+        ...
+    }
+    ...
+}
+</code></pre></div></div>
+
+<h2 id="构造函数参数">构造函数参数</h2>
+
+<p>以上的示例是使用默认构造函数进行注入，当构造函数需要其他参数时，则不能通过上述方式完成注入，可以使用@Module注释</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>public interface AnalyticsService {
+  void analyticsMethods();
+}
+
+// Hilt框架需要知道AnalyticsService的实现类，这里是AnalyticsServiceImpl
+public class AnalyticsServiceImpl implements AnalyticsService {
+  ...
+  @Inject
+  AnalyticsServiceImpl(...) {
+    ...
+  }
+}
+
+//这里ActivityComponent，表示该模块可用于所有Activity的注入中
+//同样的还有ApplicationComponet、FragmentComponet、ServiceComponet、ViewComponet等
+@Module
+@InstallIn(ActivityComponent.class)
+public abstract class AnalyticsModule {
+
+  @Binds
+  public abstract AnalyticsService bindAnalyticsService(
+    AnalyticsServiceImpl analyticsServiceImpl
+  );
+}
+</code></pre></div></div>
+
+<h2 id="外部接口">外部接口</h2>
+
+<p>以上示例说明了接口在本地，实现也是本地的类，若接口是第三方库实现也在其他库中的时候，可以用@Provides注释</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@Module
+@InstallIn(ActivityComponent.class)
+public class AnalyticsModule {
+
+  //注意这里是静态方法，接口的实现是通过第三方库得到的
+  @Provides
+  public static AnalyticsService provideAnalyticsService() {
+      return new AnalyticsService() {
+        //这里用本地接口模拟
+        @Override
+        public void analyticsMethods() {
+          Log.d("Hilt", "my impl");
+        }
+      };
+  }
+}
+</code></pre></div></div>
+
+<h2 id="多种接口实现">多种接口实现</h2>
+
+<p>接口的实现可能有多种，如何区分多个不同的实现呢，可以使用自定义的注解</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@Qualifier
+@Retention(RetentionPolicy.RUNTIME)
+private @interface FirstService {}
+
+@Qualifier
+@Retention(RetentionPolicy.RUNTIME)
+private @interface SecondService {}
+
+@Module
+@InstallIn(ActivityComponent.class)
+public class AnalyticsModule {
+
+  @FirstService
+  @Binds
+  public abstract AnalyticsService provideAnalyticsService1(AnalyticsService impl);
+
+  @SecondService
+  @Binds
+  public abstract AnalyticsService provideAnalyticsService2(AnalyticsService impl);
+}
+
+public interface AnalyticsService {
+  void analyticsMethods();
+}
+
+public AnalyticsServiceImpl1 implements AnalyticsService {
+  @Inject
+  public AnalyticcsServiceImpl() {}
+
+  @Override
+  public void analyticsMethods() {
+    Log.d("Hilt", "first impl");
+  }
+}
+
+public AnalyticsServiceImpl2 implements AnalyticsService {
+  @Inject
+  public AnalyticcsServiceImpl() {}
+
+  @Override
+  public void analyticsMethods() {
+    Log.d("Hilt", "second impl");
+  }
+}
+</code></pre></div></div>
+
+<h2 id="组件作用域">组件作用域</h2>
+
+<p>使用@Singleton、@ActivityScoped、@ViewScoped等可以将组件的作用域确定在某个生命周期中，例如@ActivityScoped可以使该模块的对象在某Activity的生命周期中保持唯一</p>
+
+<h2 id="默认绑定组件">默认绑定组件</h2>
+
+<p>使用@ApplicationContext、@ActivityContext可以在注入类中获取对象实例</p>
+
+<h2 id="测试代码">测试代码</h2>
+
+<p>测试代码位于gitee仓库
+<a href="https://gitee.com/liubocode/my-try-project.git">https://gitee.com/liubocode/my-try-project.git</a></p>
+
+<h2 id="参考文档">参考文档</h2>
+
+<p><a href="https://developer.android.google.cn/training/dependency-injection">官方文档</a></p>
+
+<p><a href="https://github.com/android/architecture-samples.git">开源的测试示例</a></p>
+
+        </article>
+        <hr>
+
+        
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+        
+        
+
+        <div class="post-recent">
+    <div class="pre">
+        
+        <p><strong>上一篇</strong> <a href="/2020/07/16/android-test/">Android平台测试框架</a></p>
+        
+    </div>
+    <div class="nex">
+
+        
+        <p><strong>下一篇</strong> <a href="/2021/04/23/server-npv/">搭建NPV服务器</a></p>
+        
+    </div>
+</div>
+
+
+
+    </div>
+    <button class="anchor"><i class="fa fa-anchor"></i></button>
+    <div class="right">
+        <div class="wrap">
+
+            <!-- Content -->
+            <div class="side content">
+                <div>
+                    Content
+                </div>
+                <ul id="content-side" class="content-ul">
+                    
+                    <!-- <li><a href="#comments">Comments</a></li> -->
+                </ul>
+            </div>
+            <!-- 其他div框放到这里 -->
+            <!-- <div class="side">bbbb</div> -->
+        </div>
+    </div>
+</div>
+<script>
+/**
+ * target _blank
+ */
+(function() {
+    var aTags = document.querySelectorAll('article a:not([id])')
+    for (var i = 0; i < aTags.length; i++) {
+        aTags[i].setAttribute('target', '_blank')
+    }
+}());
+</script>
+<script src="/js/pageContent.js " charset="utf-8"></script>
+
+
+    <footer class="site-footer">
+
+
+    <div class="wrapper">
+
+        <p class="description">
+             刘波的个人博客 
+        </p>
+        <p class="contact">
+            Contact me at: 
+            <a href="https://github.com/liubo11" title="GitHub"><i class="fa fa-github" aria-hidden="true"></i></a>  
+            <a href="mailto:liubo233@qq.com" title="email"><i class="fa fa-envelope-o" aria-hidden="true"></i></a>        
+        </p>
+        <p>
+            本站总访问量<span id="busuanzi_value_site_pv"></span>次，本站访客数<span id="busuanzi_value_site_uv"></span>人次
+        </p>
+        <p class="power">
+            <span>
+                Site powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> & <a href="https://gitee.com" target="_blank">Gitee Pages</a>.
+            </span>
+            <span>
+                Theme designed by <a>HyG</a>.
+            </span>
+        </p>
+    </div>
+</footer>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    <div class="back-to-top">
+    <a href="#top" data-scroll>
+        <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    </a>
+</div>
+
+    <script src=" /js/main.js " charset="utf-8"></script>
+    <script src=" /js/smooth-scroll.min.js " charset="utf-8"></script>
+    <script type="text/javascript">
+      smoothScroll.init({
+        speed: 500, // Integer. How fast to complete the scroll in milliseconds
+        easing: 'easeInOutCubic', // Easing pattern to use
+        offset: 20, // Integer. How far to offset the scrolling anchor location in pixels
+      });
+    </script>
+    <!-- <script src=" /js/scroll.min.js " charset="utf-8"></script> -->
+  </body>
+
+</html>

@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>K8S部署Nginx</title>
+    <meta name="description" content="  前言前言所有节点基于Ubuntu server 22.04版本，学习使用K8S部署nginx方案，其中挂载卷采用nfs、configmap、hostpath多种方案。">
+
+    <link rel="shortcut icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_8v3czwksspqlg14i.css">
+    <link rel="stylesheet" href="/css/main.css ">
+    <link rel="canonical" href="http://localhost:4001/2023/07/02/k8s-nginx-dep/">
+    <link rel="alternate" type="application/rss+xml" title="刘波的学习记录" href="http://localhost:4001/feed.xml ">
+
+
+    <script>
+    // 百度统计代码
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b659da8ed4e65e6090d2d6a718d56b8f";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+
+
+
+
+</head>
+
+
+  <body>
+
+    <header id="top">
+    <div class="wrapper">
+        <a href="/" class="brand">刘波的学习记录</a>
+        <small>Android Go Python Java C Coder</small>
+        <button id="headerMenu" class="menu"><i class="fa fa-bars"></i></button>
+        <nav id="headerNav">
+            <ul>
+                <li>
+                    
+                    <a href="/">
+                    
+                        <i class="fa fa-home"></i>主页
+                    </a>
+                </li>
+
+                
+                    
+                    <li>
+                        
+                        <a href="/archive/">
+                        
+                            <i class="fa fa-archive"></i>归档
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/category/">
+                        
+                            <i class="fa fa-th-list"></i>分类
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/tag/">
+                        
+                            <i class="fa fa-tags"></i>标签
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/collection/">
+                        
+                            <i class="fa fa-bookmark"></i>收藏
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/about/">
+                        
+                            <i class="fa fa-heart"></i>关于
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/testtitle/">
+                        
+                            <i class="fa fa-ignore"></i>保留
+                        </a>
+                    </li>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            </ul>
+        </nav>
+    </div>
+</header>
+
+
+        <div class="page clearfix" post>
+    <div class="left">
+        <h1>K8S部署Nginx</h1>
+        <div class="label">
+
+            <div class="label-card">
+                <i class="fa fa-calendar"></i>2023-07-02
+            </div>
+
+            <div class="label-card">
+                <i class="fa fa-user"></i>liubo
+                
+            </div>
+            <div class="label-card">
+                <p><i class="fa fa-eye fa-x"></i><span id="busuanzi_value_page_pv"></span></p>
+            </div>
+            <div class="label-card">
+                
+            </div>
+
+            <div class="label-card">
+            
+
+
+<!-- <span class="point">•</span> -->
+<span class="categories">
+  <i class="fa fa-th-list"></i>
+  
+    
+        <a href="/category/#后端" title="Category: 后端" rel="category">后端</a>
+    
+  
+
+  <!-- <span class="point">•</span> -->
+</span>
+
+
+            </div>
+
+            <div class="label-card">
+            
+<!-- <span class="point">•</span> -->
+<span class="pageTag">
+  <i class="fa fa-tags"></i>
+  
+    
+        <!--a href="/tag/#blog" title="Tag: blog" rel="tag">blog</a-->
+        <a href="/tag/#blog" title="Tag: blog" rel="tag">blog</a>
+    
+  
+
+</span>
+
+            </div>
+
+        </div>
+        <hr>
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+        <ul id="markdown-toc">
+  <li><a href="#前言" id="markdown-toc-前言">前言</a></li>
+  <li><a href="#基础环境准备" id="markdown-toc-基础环境准备">基础环境准备</a></li>
+  <li><a href="#k8s相关yaml文件" id="markdown-toc-k8s相关yaml文件">K8S相关yaml文件</a></li>
+</ul>
+
+<h2 id="前言">前言</h2>
+
+<p>所有节点基于Ubuntu server 22.04版本，学习使用K8S部署nginx方案，其中挂载卷采用nfs、configmap、hostpath多种方案。</p>
+
+<h2 id="基础环境准备">基础环境准备</h2>
+
+<p>可参考k8s环境搭建和单实例MySQL的部署的章节</p>
+
+<p>命名空间dev</p>
+
+<p>提前在之前共享nfs目录下创建nginx-data目录，将网站资源导出到该目录下，并赋予读执行权限</p>
+
+<h2 id="k8s相关yaml文件">K8S相关yaml文件</h2>
+
+<p>编写nginx-config.yaml，用于创建configmap，注意这里的配置是写入conf.d中的，一般conf.d有一个defaul.conf，为了让我们的配置生效，需要配置文件的优先级，优先级的方式是根据文件排名，所以这里我们的配置文件使用01-nginx.conf，当然也可以重写/etc/nginx/nginx.conf这个文件。</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: dev
+  labels:
+    app: nginx
+data:
+  01-nginx.conf: |-
+    server {
+    listen       80;
+    server_name  localhost;
+    location / {
+        root   /etc/nginx/html;
+        index  index.html index.htm;
+    }
+}
+</code></pre></div></div>
+
+<p>编写nginx-svc.yaml，用于创建service</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: svc-nginx
+  name: svc-nginx
+  namespace: dev
+spec:
+  selector:
+    app: nginx
+  type: NodePort
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+    nodePort: 30080
+</code></pre></div></div>
+
+<p>编写nginx-storage.yaml，用于创建pvc存储</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-nginx
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  # 存储类，具有相同存储类名称的pv和pvc才能进行绑定
+  storageClassName: nfs-nginx
+  nfs:
+    path: /nfs/nginx-data
+    server: 192.168.2.32
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginx-pvc
+  namespace: dev
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  # 存储类，具有相同存储类名称的pv和pvc才能进行绑定
+  storageClassName: nfs-nginx
+</code></pre></div></div>
+
+<p>编写nginx-config.yaml，用于创建configmap</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx
+  name: nginx-test
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - image: nginx:1.18.0
+        name: nginx
+        ports:
+        - containerPort: 80
+        env:
+        - name: TZ
+          value: Asia/Shanghai
+        - name: LANG
+          value: en_US.UTF-8
+        volumeMounts:
+        - name: conf
+          mountPath: /etc/nginx/conf.d/01-nginx.conf
+          subPath: 01-nginx.conf
+        - name: log
+          mountPath: /var/log/nginx
+        - name: html
+          mountPath: /etc/nginx/html
+      volumes:
+      - name: html
+        persistentVolumeClaim:
+          claimName: nginx-pvc
+      - name: conf
+        configMap:
+          name: nginx-config
+      - name: log
+        hostPath:
+          path: /var/log/nginx/logs
+          type: DirectoryOrCreate
+</code></pre></div></div>
+
+<p>剩下的依次执行上述yaml</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>kubectl create -f nginx-storage.yaml
+kubectl create -f nginx-config.yaml
+kubectl create -f nginx-dev.yaml
+kubectl create -f nginx-svc.yaml
+</code></pre></div></div>
+
+<p>使用<code class="language-plaintext highlighter-rouge">kubectl get pod -n dev</code>命令查看pod情况</p>
+
+<p>外部通过子节点的ip:30080访问nginx</p>
+
+
+        </article>
+        <hr>
+
+        
+        
+            
+            
+                
+                    
+                        
+                        <h2 id="similar_posts">Similar Posts</h2>
+                        <ul>
+                        
+                        <li class="relatedPost">
+                            <a href="/2023/07/01/k8s-mysql-pvc/">K8S部署单实例MySQL
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="/2023/06/20/k8s-deploy/">K8S基于kubeadmin的部署
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="/2023/01/01/k8s-base/">K8S基础
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="/2022/01/02/kotlin-base/">Kotlin基础知识
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                        
+                        <li class="relatedPost">
+                            <a href="/2021/12/07/offline-doc/">搭建内网离线文档
+                            
+                            </a>
+                        </li>
+                        
+                        
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+            
+        
+        
+            </ul>
+        
+
+        <div class="post-recent">
+    <div class="pre">
+        
+        <p><strong>上一篇</strong> <a href="/2023/07/01/k8s-mysql-pvc/">K8S部署单实例MySQL</a></p>
+        
+    </div>
+    <div class="nex">
+
+        
+    </div>
+</div>
+
+
+
+    </div>
+    <button class="anchor"><i class="fa fa-anchor"></i></button>
+    <div class="right">
+        <div class="wrap">
+
+            <!-- Content -->
+            <div class="side content">
+                <div>
+                    Content
+                </div>
+                <ul id="content-side" class="content-ul">
+                    
+                    <li><a href="#similar_posts">Similar Posts</a></li>
+                    
+                    <!-- <li><a href="#comments">Comments</a></li> -->
+                </ul>
+            </div>
+            <!-- 其他div框放到这里 -->
+            <!-- <div class="side">bbbb</div> -->
+        </div>
+    </div>
+</div>
+<script>
+/**
+ * target _blank
+ */
+(function() {
+    var aTags = document.querySelectorAll('article a:not([id])')
+    for (var i = 0; i < aTags.length; i++) {
+        aTags[i].setAttribute('target', '_blank')
+    }
+}());
+</script>
+<script src="/js/pageContent.js " charset="utf-8"></script>
+
+
+    <footer class="site-footer">
+
+
+    <div class="wrapper">
+
+        <p class="description">
+             刘波的个人博客 
+        </p>
+        <p class="contact">
+            Contact me at: 
+            <a href="https://github.com/liubo11" title="GitHub"><i class="fa fa-github" aria-hidden="true"></i></a>  
+            <a href="mailto:liubo233@qq.com" title="email"><i class="fa fa-envelope-o" aria-hidden="true"></i></a>        
+        </p>
+        <p>
+            本站总访问量<span id="busuanzi_value_site_pv"></span>次，本站访客数<span id="busuanzi_value_site_uv"></span>人次
+        </p>
+        <p class="power">
+            <span>
+                Site powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> & <a href="https://gitee.com" target="_blank">Gitee Pages</a>.
+            </span>
+            <span>
+                Theme designed by <a>HyG</a>.
+            </span>
+        </p>
+    </div>
+</footer>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    <div class="back-to-top">
+    <a href="#top" data-scroll>
+        <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    </a>
+</div>
+
+    <script src=" /js/main.js " charset="utf-8"></script>
+    <script src=" /js/smooth-scroll.min.js " charset="utf-8"></script>
+    <script type="text/javascript">
+      smoothScroll.init({
+        speed: 500, // Integer. How fast to complete the scroll in milliseconds
+        easing: 'easeInOutCubic', // Easing pattern to use
+        offset: 20, // Integer. How far to offset the scrolling anchor location in pixels
+      });
+    </script>
+    <!-- <script src=" /js/scroll.min.js " charset="utf-8"></script> -->
+  </body>
+
+</html>

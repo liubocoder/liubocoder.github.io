@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>JNI在Android平台的使用</title>
+    <meta name="description" content="  前言前言Android开发中，JNI可以用于跨平台，也可以用于提高性能以及代码安全性等，这里也提一下可以使用JNA技术实现C/C++接口的访问，JNA的优点是不需要编写额外的C/C++代码，仅仅是java代码即可完成底层接口的调用，缺点是性能相对较差。什么是JNI呢？JNI全称是Java native int...">
+
+    <link rel="shortcut icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_8v3czwksspqlg14i.css">
+    <link rel="stylesheet" href="/css/main.css ">
+    <link rel="canonical" href="http://localhost:4001/2020/06/11/android-jni/">
+    <link rel="alternate" type="application/rss+xml" title="刘波的学习记录" href="http://localhost:4001/feed.xml ">
+
+
+    <script>
+    // 百度统计代码
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b659da8ed4e65e6090d2d6a718d56b8f";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+
+
+
+
+</head>
+
+
+  <body>
+
+    <header id="top">
+    <div class="wrapper">
+        <a href="/" class="brand">刘波的学习记录</a>
+        <small>Android Go Python Java C Coder</small>
+        <button id="headerMenu" class="menu"><i class="fa fa-bars"></i></button>
+        <nav id="headerNav">
+            <ul>
+                <li>
+                    
+                    <a href="/">
+                    
+                        <i class="fa fa-home"></i>主页
+                    </a>
+                </li>
+
+                
+                    
+                    <li>
+                        
+                        <a href="/archive/">
+                        
+                            <i class="fa fa-archive"></i>归档
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/category/">
+                        
+                            <i class="fa fa-th-list"></i>分类
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/tag/">
+                        
+                            <i class="fa fa-tags"></i>标签
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/collection/">
+                        
+                            <i class="fa fa-bookmark"></i>收藏
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/about/">
+                        
+                            <i class="fa fa-heart"></i>关于
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/testtitle/">
+                        
+                            <i class="fa fa-ignore"></i>保留
+                        </a>
+                    </li>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            </ul>
+        </nav>
+    </div>
+</header>
+
+
+        <div class="page clearfix" post>
+    <div class="left">
+        <h1>JNI在Android平台的使用</h1>
+        <div class="label">
+
+            <div class="label-card">
+                <i class="fa fa-calendar"></i>2020-06-11
+            </div>
+
+            <div class="label-card">
+                <i class="fa fa-user"></i>liubo
+                
+            </div>
+            <div class="label-card">
+                <p><i class="fa fa-eye fa-x"></i><span id="busuanzi_value_page_pv"></span></p>
+            </div>
+            <div class="label-card">
+                
+            </div>
+
+            <div class="label-card">
+            
+
+
+<!-- <span class="point">•</span> -->
+<span class="categories">
+  <i class="fa fa-th-list"></i>
+  
+    
+        <a href="/category/#Android" title="Category: Android" rel="category">Android</a>&nbsp;
+    
+        <a href="/category/#Java" title="Category: Java" rel="category">Java</a>
+    
+  
+
+  <!-- <span class="point">•</span> -->
+</span>
+
+
+            </div>
+
+            <div class="label-card">
+            
+<!-- <span class="point">•</span> -->
+<span class="pageTag">
+  <i class="fa fa-tags"></i>
+  
+    
+        <!--a href="/tag/#android-NDK" title="Tag: android-NDK" rel="tag">android-NDK</a-->
+        <a href="/tag/#android-NDK" title="Tag: android-NDK" rel="tag">android-NDK</a>&nbsp;
+    
+        <!--a href="/tag/#JNI" title="Tag: JNI" rel="tag">JNI</a-->
+        <a href="/tag/#JNI" title="Tag: JNI" rel="tag">JNI</a>&nbsp;
+    
+        <!--a href="/tag/#make" title="Tag: make" rel="tag">make</a-->
+        <a href="/tag/#make" title="Tag: make" rel="tag">make</a>&nbsp;
+    
+        <!--a href="/tag/#cmake" title="Tag: cmake" rel="tag">cmake</a-->
+        <a href="/tag/#cmake" title="Tag: cmake" rel="tag">cmake</a>
+    
+  
+
+</span>
+
+            </div>
+
+        </div>
+        <hr>
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+        <ul id="markdown-toc">
+  <li><a href="#前言" id="markdown-toc-前言">前言</a></li>
+  <li><a href="#简单用一下jni" id="markdown-toc-简单用一下jni">简单用一下JNI</a></li>
+  <li><a href="#ndk的使用" id="markdown-toc-ndk的使用">NDK的使用</a></li>
+  <li><a href="#makefile构建" id="markdown-toc-makefile构建">makefile构建</a></li>
+  <li><a href="#cmake构建" id="markdown-toc-cmake构建">cmake构建</a></li>
+  <li><a href="#参考资料" id="markdown-toc-参考资料">参考资料</a></li>
+</ul>
+
+<h2 id="前言">前言</h2>
+
+<p>Android开发中，JNI可以用于跨平台，也可以用于提高性能以及代码安全性等，这里也提一下可以使用JNA技术实现C/C++接口的访问，JNA的优点是不需要编写额外的C/C++代码，仅仅是java代码即可完成底层接口的调用，缺点是性能相对较差。</p>
+
+<p>什么是JNI呢？JNI全称是Java native interface，即为Java与本地代码的通信接口，Android中会通过NDK使用JNI，NDK是什么呢？NDK全称为Native develop kit，即为本地开发工具包，Goole为Android开发者提供了工具包，用于Android平台的JNI开发，该工具包支持Windows和Linux。</p>
+
+<h2 id="简单用一下jni">简单用一下JNI</h2>
+
+<p>javah 用于将含有native的方法生成c头文件，当然不用javah生成，自己写也是可以的。</p>
+
+<p>注意查看自己的jvm库的位置，我的是在/usr/lib/jvm/java-8-openjdk-amd64
+gcc -fPIC -I/usr/lib/jvm/java-8-openjdk-amd64/include -I/usr/lib/jvm/java-8-openjdk-amd64/include/linux -shared Mj.c -o libMj.so</p>
+
+<p>java中加载动态库时注意java.library.path参数，如果不清楚可以用绝对路径来加载System.load()，当然用相对路径更好点System.loadLibrary()，相对路径的库命令为libxx.so。</p>
+
+<h2 id="ndk的使用">NDK的使用</h2>
+<p>在Android中使用JNI，需要借助NDK工具包，可以用两种工具来构建项目，分别是makefile和cmake，其中定义的cflags都可以在代码中宏判断</p>
+
+<h2 id="makefile构建">makefile构建</h2>
+
+<p>使用makefile中有两个主要的构建相关文件 Android.mk Application.mk，这里举例说明</p>
+
+<ol>
+  <li>Application.mk</li>
+</ol>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#生成的CPU平台
+APP_ABI := all
+#我个人理解为最小支持版本，不太准确..
+APP_PLATFORM := android-16
+</code></pre></div></div>
+
+<ol>
+  <li>Android.mk</li>
+</ol>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>LOCAL_PATH := $(call my-dir)
+
+include $(CLEAR_VARS)
+
+#模块名称 并且生成的so命名为：libmy_md.so
+LOCAL_MODULE := my_md
+
+#定义变量
+INC1 := ../inc1
+INC2 := ../inc2
+SRC_DIR := ../../src
+
+#头文件路径
+LOCAL_C_INCLUDES += $(INC1) $(INC2)
+#源文件
+LOCAL_SRC_FILES := \
+    $(SRC_DIR)/xx.c \
+    ...
+
+#编译的flag，-D是自定义的参数
+LOCAL_CFLAGS += -DXX_PARAM -O2 -Wimplicit
+
+include $(BUILD_STATIC_LIBRARY)
+
+# Build JNI wrapper
+include $(CLEAR_VARS)
+
+#本地静态库.a
+#LOCAL_STATIC_LIBRARIES := libclib
+#其他依赖库
+#LOCAL_SRC_FILES += $(TARGET_ARCH_ABI)/libthird1.a     # or $(so_path)/libthird1.so
+#LOCAL_EXPORT_C_INCLUDES += $(LOCAL_PATH)/include
+
+#外部链接库，例如-llog 表示日志相关
+LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -llog -ljnigraphics
+
+#编译动态库  若需要编译静态库 使用：BUILD_STATIC_LIBRARY
+include $(BUILD_SHARED_LIBRARY)
+</code></pre></div></div>
+
+<h2 id="cmake构建">cmake构建</h2>
+
+<ol>
+  <li>CMakeLists.txt文件编写</li>
+</ol>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#指定需要CMAKE的最小版本
+cmake_minimum_required(VERSION 3.4.1)
+
+project(my_md)
+
+#变量
+set(SDK_ROOT_PATH ${PROJECT_SOURCE_DIR}/sdk)
+#设置生成的so动态库最后输出的路径
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/jniLibs/${ANDROID_ABI})
+
+#引入头文件
+include_directories(
+    ${SDK_ROOT_PATH}/inc
+    ..
+)
+
+#自定义源文件
+set(SOURCES)
+#遍历工程目录下所有文件
+file(GLOB_RECURSE SOURCES "${PROJECT_SOURCE_DIR}/jni/*.c")
+list(APPEND SOURCES
+    ${SDK_ROOT_PATH}/src/xx.c
+    ...
+)
+
+#输出库名称、类型、源文件
+add_library(my_md SHARED ${SOURCES})
+
+#忽略所有警告
+#add_definitions(-w)
+#设置编译器警告级别 也可以在gradle中配置 cFlag
+#add_definitions(-Wunknown-warning-option)
+#add_definitions(-Wpointer-sign)
+add_definitions(-Wreturn-type)
+#add_definitions(-Wpointer-sign)
+
+set(LIBS)
+list(APPEND LIBS
+    jnigraphics
+    OpenSLES
+    GLESv1_CM
+    log
+)
+
+#指定链接库名称
+#target_link_libraries(libclib xxx xxx)
+target_link_libraries(my_md ${LIBS})
+</code></pre></div></div>
+
+<ol>
+  <li>AndroidStudio中配置cmake编译</li>
+</ol>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>android {
+    ...
+    compileOptions {
+        //若无GBK编码 则不需要该选项
+        encoding "GBK"
+    }
+    defaultConfig {
+        ...
+        externalNativeBuild {
+            cmake {
+                arguments "-DANDROID_PLATFORM=android-16"
+                //-D开头是自定义的参数 '-Wall'
+                cFlags '-DXX_PARAM', '-O2', '-w'
+                abiFilters "armeabi-v7a"
+            }
+        }
+    }
+    ...
+    externalNativeBuild {
+        cmake {
+            path 'CMakeLists.txt'
+        }
+    }
+}
+</code></pre></div></div>
+
+<h2 id="参考资料">参考资料</h2>
+
+<p><a href="https://developer.android.google.cn/ndk/guides/">官方资料</a></p>
+
+<p><a href="https://www.cnblogs.com/lovesaber/archive/2013/04/01/2993375.html">JNI简单使用</a></p>
+
+<p><a href="http://blog.chinaunix.net/uid-20672257-id-3408132.html">CFLGAS说明</a></p>
+
+        </article>
+        <hr>
+
+        
+        
+            
+            
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            
+        
+        
+
+        <div class="post-recent">
+    <div class="pre">
+        
+        <p><strong>上一篇</strong> <a href="/2020/06/01/android-linux-env/">Ubuntu下Android应用开发环境搭建</a></p>
+        
+    </div>
+    <div class="nex">
+
+        
+        <p><strong>下一篇</strong> <a href="/2020/07/16/android-test/">Android平台测试框架</a></p>
+        
+    </div>
+</div>
+
+
+
+    </div>
+    <button class="anchor"><i class="fa fa-anchor"></i></button>
+    <div class="right">
+        <div class="wrap">
+
+            <!-- Content -->
+            <div class="side content">
+                <div>
+                    Content
+                </div>
+                <ul id="content-side" class="content-ul">
+                    
+                    <!-- <li><a href="#comments">Comments</a></li> -->
+                </ul>
+            </div>
+            <!-- 其他div框放到这里 -->
+            <!-- <div class="side">bbbb</div> -->
+        </div>
+    </div>
+</div>
+<script>
+/**
+ * target _blank
+ */
+(function() {
+    var aTags = document.querySelectorAll('article a:not([id])')
+    for (var i = 0; i < aTags.length; i++) {
+        aTags[i].setAttribute('target', '_blank')
+    }
+}());
+</script>
+<script src="/js/pageContent.js " charset="utf-8"></script>
+
+
+    <footer class="site-footer">
+
+
+    <div class="wrapper">
+
+        <p class="description">
+             刘波的个人博客 
+        </p>
+        <p class="contact">
+            Contact me at: 
+            <a href="https://github.com/liubo11" title="GitHub"><i class="fa fa-github" aria-hidden="true"></i></a>  
+            <a href="mailto:liubo233@qq.com" title="email"><i class="fa fa-envelope-o" aria-hidden="true"></i></a>        
+        </p>
+        <p>
+            本站总访问量<span id="busuanzi_value_site_pv"></span>次，本站访客数<span id="busuanzi_value_site_uv"></span>人次
+        </p>
+        <p class="power">
+            <span>
+                Site powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> & <a href="https://gitee.com" target="_blank">Gitee Pages</a>.
+            </span>
+            <span>
+                Theme designed by <a>HyG</a>.
+            </span>
+        </p>
+    </div>
+</footer>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    <div class="back-to-top">
+    <a href="#top" data-scroll>
+        <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    </a>
+</div>
+
+    <script src=" /js/main.js " charset="utf-8"></script>
+    <script src=" /js/smooth-scroll.min.js " charset="utf-8"></script>
+    <script type="text/javascript">
+      smoothScroll.init({
+        speed: 500, // Integer. How fast to complete the scroll in milliseconds
+        easing: 'easeInOutCubic', // Easing pattern to use
+        offset: 20, // Integer. How far to offset the scrolling anchor location in pixels
+      });
+    </script>
+    <!-- <script src=" /js/scroll.min.js " charset="utf-8"></script> -->
+  </body>
+
+</html>

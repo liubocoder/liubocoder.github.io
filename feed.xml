@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>刘波的学习记录</title>
+    <description></description>
+    <link>http://localhost:4001/</link>
+    <atom:link href="http://localhost:4001/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Mon, 16 Dec 2024 09:20:24 +0800</pubDate>
+    <lastBuildDate>Mon, 16 Dec 2024 09:20:24 +0800</lastBuildDate>
+    <generator>Jekyll v4.2.0</generator>
+    
+      <item>
+        <title>K8S部署Nginx</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#前言&quot; id=&quot;markdown-toc-前言&quot;&gt;前言&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;前言&quot;&gt;前言&lt;/h2&gt;
+
+所有节点基于Ubuntu server 22.04版本，学习使用K8S部署nginx方案，其中挂载卷采用nfs、configmap、hostpath多种方案。
+</description>
+        <pubDate>Sun, 02 Jul 2023 00:00:00 +0800</pubDate>
+        <link>http://localhost:4001/2023/07/02/k8s-nginx-dep/</link>
+        <guid isPermaLink="true">http://localhost:4001/2023/07/02/k8s-nginx-dep/</guid>
+        
+        <category>blog</category>
+        
+        
+        <category>后端</category>
+        
+      </item>
+    
+      <item>
+        <title>K8S部署单实例MySQL</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#前言&quot; id=&quot;markdown-toc-前言&quot;&gt;前言&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;前言&quot;&gt;前言&lt;/h2&gt;
+
+所有节点基于Ubuntu server 22.04版本，介绍K8S部署单实例的mysql的流程，采用nfs作为存储类，configmap作为配置存储。
+</description>
+        <pubDate>Sat, 01 Jul 2023 00:00:00 +0800</pubDate>
+        <link>http://localhost:4001/2023/07/01/k8s-mysql-pvc/</link>
+        <guid isPermaLink="true">http://localhost:4001/2023/07/01/k8s-mysql-pvc/</guid>
+        
+        <category>blog</category>
+        
+        
+        <category>后端</category>
+        
+      </item>
+    
+      <item>
+        <title>K8S基于kubeadmin的部署</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#环境准备&quot; id=&quot;markdown-toc-环境准备&quot;&gt;环境准备&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;环境准备&quot;&gt;环境准备&lt;/h2&gt;
+
+准备3台主机，初始安装Ubuntu server 22.04，能互通并连接互联网。
+
+可以考虑配置一台虚拟机，另外两台直接拷贝第一台，然后修改ip和hostname即可。
+
+我的环境：
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;主机&lt;/th&gt;
+      &lt;th&gt;IP&lt;/th&gt;
+      &lt;th&gt;掩码&lt;/th&gt;
+      &lt;th&gt;网关&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;master1&lt;/td&gt;
+      &lt;td&gt;192.168.2.21&lt;/td&gt;
+      &lt;td&gt;24&lt;/td&gt;
+      &lt;td&gt;192.168.2.1&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;node1&lt;/td&gt;
+      &lt;td&gt;192.168.2.31&lt;/td&gt;
+      &lt;td&gt;24&lt;/td&gt;
+      &lt;td&gt;192.168.2.1&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;node2&lt;/td&gt;
+      &lt;td&gt;192.168.2.32&lt;/td&gt;
+      &lt;td&gt;24&lt;/td&gt;
+      &lt;td&gt;192.168.2.1&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+</description>
+        <pubDate>Tue, 20 Jun 2023 00:00:00 +0800</pubDate>
+        <link>http://localhost:4001/2023/06/20/k8s-deploy/</link>
+        <guid isPermaLink="true">http://localhost:4001/2023/06/20/k8s-deploy/</guid>
+        
+        <category>blog</category>
+        
+        
+        <category>后端</category>
+        
+      </item>
+    
+      <item>
+        <title>K8S基础</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#前言&quot; id=&quot;markdown-toc-前言&quot;&gt;前言&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#minikube安装&quot; id=&quot;markdown-toc-minikube安装&quot;&gt;minikube安装&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;前言&quot;&gt;前言&lt;/h2&gt;
+
+本文记录k8s的学习过程，测试是基于版本1.18.20。
+
+&lt;h2 id=&quot;minikube安装&quot;&gt;minikube安装&lt;/h2&gt;
+
+如果仅是作为学习了解，可以使用minikube，快速的体验k8s的各个功能，部署相关指令如下，系统采用centos7
+</description>
+        <pubDate>Sun, 01 Jan 2023 00:00:00 +0800</pubDate>
+        <link>http://localhost:4001/2023/01/01/k8s-base/</link>
+        <guid isPermaLink="true">http://localhost:4001/2023/01/01/k8s-base/</guid>
+        
+        <category>blog</category>
+        
+        
+        <category>后端</category>
+        
+      </item>
+    
+      <item>
+        <title>Redis基础</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#前言&quot; id=&quot;markdown-toc-前言&quot;&gt;前言&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#docker部署redis&quot; id=&quot;markdown-toc-docker部署redis&quot;&gt;docker部署redis&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#下载配置文件&quot; id=&quot;markdown-toc-下载配置文件&quot;&gt;下载配置文件&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;前言&quot;&gt;前言&lt;/h2&gt;
+本文主要是记录下redis的基础知识，环境搭建等。以下测试基于readis版本6.2.6。
+
+&lt;h2 id=&quot;docker部署redis&quot;&gt;docker部署redis&lt;/h2&gt;
+docker安装redis，以下步骤仅用于开发环境，正式环境需要关闭外部访问配置以及存储配置等情况。
+
+&lt;h3 id=&quot;下载配置文件&quot;&gt;下载配置文件&lt;/h3&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;redis
+wget http://download.redis.io/redis-stable/redis.conf
+sentinel哨兵
+wget http://download.redis.io/redis-stable/sentinel.conf
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+</description>
+        <pubDate>Thu, 01 Dec 2022 00:00:00 +0800</pubDate>
+        <link>http://localhost:4001/2022/12/01/redis-base/</link>
+        <guid isPermaLink="true">http://localhost:4001/2022/12/01/redis-base/</guid>
+        
+        <category>redis</category>
+        
+        
+        <category>后端</category>
+        
+      </item>
+    
+      <item>
+        <title>MySQL基础</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#前言&quot; id=&quot;markdown-toc-前言&quot;&gt;前言&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#docker-安装mysql&quot; id=&quot;markdown-toc-docker-安装mysql&quot;&gt;docker 安装mysql&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;前言&quot;&gt;前言&lt;/h2&gt;
+
+本文主要是记录下mysql的基础知识，环境搭建等。以下测试基于mysql版本5.7.31。
+
+&lt;h2 id=&quot;docker-安装mysql&quot;&gt;docker 安装mysql&lt;/h2&gt;
+
+docker的mysql配置文件路径&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/etc/mysql/mysql.conf.d/mysqld.cnf&lt;/code&gt;，这里可以永久修改sql_mod参数
+
+[mysqld]  &amp;lt;–这个条目下追加如下
+
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sql-mode=&quot;NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION&quot;&lt;/code&gt;
+
+用于修改sql-mode，这个属性会影响到mysql的一些行为，例如检查时间格式等。
+</description>
+        <pubDate>Thu, 06 Oct 2022 00:00:00 +0800</pubDate>
+        <link>http://localhost:4001/2022/10/06/mysql-base/</link>
+        <guid isPermaLink="true">http://localhost:4001/2022/10/06/mysql-base/</guid>
+        
+        <category>mysql</category>
+        
+        
+        <category>后端</category>
+        
+      </item>
+    
+      <item>
+        <title>centos7初始化配置</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#前言&quot; id=&quot;markdown-toc-前言&quot;&gt;前言&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#下载镜像&quot; id=&quot;markdown-toc-下载镜像&quot;&gt;下载镜像&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#安装系统&quot; id=&quot;markdown-toc-安装系统&quot;&gt;安装系统&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#初始化配置&quot; id=&quot;markdown-toc-初始化配置&quot;&gt;初始化配置&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;前言&quot;&gt;前言&lt;/h2&gt;
+
+验证环境VirtualBox centos虚拟机。
+
+&lt;h2 id=&quot;下载镜像&quot;&gt;下载镜像&lt;/h2&gt;
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;http://mirrors.aliyun.com/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-Minimal-2009.iso
+&lt;/code&gt;
+
+&lt;h2 id=&quot;安装系统&quot;&gt;安装系统&lt;/h2&gt;
+
+采用最小安装方式，只分区/boot 和 /。
+
+&lt;h2 id=&quot;初始化配置&quot;&gt;初始化配置&lt;/h2&gt;
+</description>
+        <pubDate>Tue, 24 May 2022 00:00:00 +0800</pubDate>
+        <link>http://localhost:4001/2022/05/24/centos7/</link>
+        <guid isPermaLink="true">http://localhost:4001/2022/05/24/centos7/</guid>
+        
+        <category>centos</category>
+        
+        
+        <category>linux</category>
+        
+      </item>
+    
+      <item>
+        <title>Kotlin基础知识</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#kotlin基础&quot; id=&quot;markdown-toc-kotlin基础&quot;&gt;Kotlin基础&lt;/a&gt;    &lt;ul&gt;
+      &lt;li&gt;&lt;a href=&quot;#创建测试项目&quot; id=&quot;markdown-toc-创建测试项目&quot;&gt;创建测试项目&lt;/a&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;kotlin基础&quot;&gt;Kotlin基础&lt;/h2&gt;
+如果有Java基础，Kotlin语法上基本没啥难度，主要是一些特殊的写法、关键字需要熟悉，类、集合怎么定义和使用。
+
+&lt;h3 id=&quot;创建测试项目&quot;&gt;创建测试项目&lt;/h3&gt;
+这里不再描述AndroidStudio中如何创建了，仅记录下IDEA中创建，IDEA中推荐使用gradle的方式创建Kotlin/JVM项目用于测试Kotlin，若不选用项目构建工具，需要自己管理依赖，太麻烦了。。比如协程稍微高级一点的api都不在标准库中，
+协程相关依赖&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;implementation(&quot;org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.61&quot;)&lt;/code&gt;，版本根据实际指定
+</description>
+        <pubDate>Sun, 02 Jan 2022 00:00:00 +0800</pubDate>
+        <link>http://localhost:4001/2022/01/02/kotlin-base/</link>
+        <guid isPermaLink="true">http://localhost:4001/2022/01/02/kotlin-base/</guid>
+        
+        <category>blog</category>
+        
+        
+        <category>Blog</category>
+        
+      </item>
+    
+      <item>
+        <title>搭建内网离线文档</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#前言&quot; id=&quot;markdown-toc-前言&quot;&gt;前言&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;#使用方法&quot; id=&quot;markdown-toc-使用方法&quot;&gt;使用方法&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;前言&quot;&gt;前言&lt;/h2&gt;
+
+有时候查询某些开源项目的文档时，由于各种原因导致网页加载速度很慢，这里记录一个工具Zeal，可以抓取主流开源项目的文档，用于离线查看
+
+&lt;a href=&quot;https://github-releases.githubusercontent.com/7711472/07b89f00-cc2b-11e8-9630-e0298beb0b6b?X-Amz-Algorithm=AWS4-HMAC-SHA256&amp;amp;X-Amz-Credential=AKIAIWNJYAX4CSVEH53A%2F20211125%2Fus-east-1%2Fs3%2Faws4_request&amp;amp;X-Amz-Date=20211125T075945Z&amp;amp;X-Amz-Expires=300&amp;amp;X-Amz-Signature=0ca666820e7cbaa2c05625856f1b2235764a3b7726a712162dcfea4cd34b639f&amp;amp;X-Amz-SignedHeaders=host&amp;amp;actor_id=0&amp;amp;key_id=0&amp;amp;repo_id=7711472&amp;amp;response-content-disposition=attachment%3B%20filename%3Dzeal-portable-0.6.1-windows-x64.zip&amp;amp;response-content-type=application%2Foctet-stream&quot;&gt;免安装版本下载地址&lt;/a&gt;
+
+&lt;h2 id=&quot;使用方法&quot;&gt;使用方法&lt;/h2&gt;
+&lt;ol&gt;
+  &lt;li&gt;下载软件包压缩文件&lt;/li&gt;
+  &lt;li&gt;解压运行 tools-&amp;gt;Docsets-&amp;gt;Available，选取自己的需要抓取的文档&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+        <pubDate>Tue, 07 Dec 2021 00:00:00 +0800</pubDate>
+        <link>http://localhost:4001/2021/12/07/offline-doc/</link>
+        <guid isPermaLink="true">http://localhost:4001/2021/12/07/offline-doc/</guid>
+        
+        <category>blog</category>
+        
+        
+        <category>Blog</category>
+        
+      </item>
+    
+      <item>
+        <title>记录ONOS自动添加的swagger文档中文乱码问题</title>
+        <description>&lt;ul id=&quot;markdown-toc&quot;&gt;
+  &lt;li&gt;&lt;a href=&quot;#问题&quot; id=&quot;markdown-toc-问题&quot;&gt;问题&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;问题&quot;&gt;问题&lt;/h2&gt;
+
+在使用onos的doc时，添加中文的注释会在swagger页面显示乱码，原因是自动生成的swagger配置文件中写入了错误编码格式的字符。
+&lt;img src=&quot;/assets/blog-img/build-onos-swagger-1-1.png&quot; alt=&quot;img&quot; /&gt;
+</description>
+        <pubDate>Tue, 09 Nov 2021 00:00:00 +0800</pubDate>
+        <link>http://localhost:4001/2021/11/09/onos-swagger/</link>
+        <guid isPermaLink="true">http://localhost:4001/2021/11/09/onos-swagger/</guid>
+        
+        <category>bazel</category>
+        
+        <category>onos</category>
+        
+        
+        <category>Build</category>
+        
+      </item>
+    
+  </channel>
+</rss>

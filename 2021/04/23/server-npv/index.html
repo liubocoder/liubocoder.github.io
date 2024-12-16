@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>搭建NPV服务器</title>
+    <meta name="description" content="  需求  准备工具需求有时候需要查阅资料，不得不借助各种工具，都不是很稳定，风险不能自己掌控，很难受。。于是想用’opennpv’自己搭建一个，为了提交这篇文章，所有能改的都改为opennpv。准备工具1. 云服务器，可以买阿里云或者腾讯云，注意是否有跨境需求决定服务器位置2. 云服务器上安装docker和op...">
+
+    <link rel="shortcut icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico?" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_8v3czwksspqlg14i.css">
+    <link rel="stylesheet" href="/css/main.css ">
+    <link rel="canonical" href="http://localhost:4001/2021/04/23/server-npv/">
+    <link rel="alternate" type="application/rss+xml" title="刘波的学习记录" href="http://localhost:4001/feed.xml ">
+
+
+    <script>
+    // 百度统计代码
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b659da8ed4e65e6090d2d6a718d56b8f";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+
+
+
+
+</head>
+
+
+  <body>
+
+    <header id="top">
+    <div class="wrapper">
+        <a href="/" class="brand">刘波的学习记录</a>
+        <small>Android Go Python Java C Coder</small>
+        <button id="headerMenu" class="menu"><i class="fa fa-bars"></i></button>
+        <nav id="headerNav">
+            <ul>
+                <li>
+                    
+                    <a href="/">
+                    
+                        <i class="fa fa-home"></i>主页
+                    </a>
+                </li>
+
+                
+                    
+                    <li>
+                        
+                        <a href="/archive/">
+                        
+                            <i class="fa fa-archive"></i>归档
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/category/">
+                        
+                            <i class="fa fa-th-list"></i>分类
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/tag/">
+                        
+                            <i class="fa fa-tags"></i>标签
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/collection/">
+                        
+                            <i class="fa fa-bookmark"></i>收藏
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/about/">
+                        
+                            <i class="fa fa-heart"></i>关于
+                        </a>
+                    </li>
+                    
+                
+                    
+                    <li>
+                        
+                        <a href="/testtitle/">
+                        
+                            <i class="fa fa-ignore"></i>保留
+                        </a>
+                    </li>
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+                    
+                
+            </ul>
+        </nav>
+    </div>
+</header>
+
+
+        <div class="page clearfix" post>
+    <div class="left">
+        <h1>搭建NPV服务器</h1>
+        <div class="label">
+
+            <div class="label-card">
+                <i class="fa fa-calendar"></i>2021-04-23
+            </div>
+
+            <div class="label-card">
+                <i class="fa fa-user"></i>liubo
+                
+            </div>
+            <div class="label-card">
+                <p><i class="fa fa-eye fa-x"></i><span id="busuanzi_value_page_pv"></span></p>
+            </div>
+            <div class="label-card">
+                
+            </div>
+
+            <div class="label-card">
+            
+
+
+<!-- <span class="point">•</span> -->
+<span class="categories">
+  <i class="fa fa-th-list"></i>
+  
+    
+        <a href="/category/#后端" title="Category: 后端" rel="category">后端</a>&nbsp;
+    
+        <a href="/category/#网络" title="Category: 网络" rel="category">网络</a>
+    
+  
+
+  <!-- <span class="point">•</span> -->
+</span>
+
+
+            </div>
+
+            <div class="label-card">
+            
+<!-- <span class="point">•</span> -->
+<span class="pageTag">
+  <i class="fa fa-tags"></i>
+  
+    
+        <!--a href="/tag/#opennpv" title="Tag: opennpv" rel="tag">opennpv</a-->
+        <a href="/tag/#opennpv" title="Tag: opennpv" rel="tag">opennpv</a>&nbsp;
+    
+        <!--a href="/tag/#docker" title="Tag: docker" rel="tag">docker</a-->
+        <a href="/tag/#docker" title="Tag: docker" rel="tag">docker</a>
+    
+  
+
+</span>
+
+            </div>
+
+        </div>
+        <hr>
+        <article itemscope itemtype="http://schema.org/BlogPosting">
+        <ul id="markdown-toc">
+  <li><a href="#需求" id="markdown-toc-需求">需求</a></li>
+  <li><a href="#准备工具" id="markdown-toc-准备工具">准备工具</a></li>
+  <li><a href="#使用脚本配置服务器" id="markdown-toc-使用脚本配置服务器">使用脚本配置服务器</a></li>
+  <li><a href="#客户端中使用" id="markdown-toc-客户端中使用">客户端中使用</a></li>
+  <li><a href="#npv服务架设遇到的问题" id="markdown-toc-npv服务架设遇到的问题">npv服务架设遇到的问题</a>    <ul>
+      <li><a href="#opennpv服务器能收包不能发包" id="markdown-toc-opennpv服务器能收包不能发包">opennpv服务器能收包，不能发包</a></li>
+      <li><a href="#连接npv不能访问外网" id="markdown-toc-连接npv不能访问外网">连接npv不能访问外网</a></li>
+    </ul>
+  </li>
+  <li><a href="#参考资料" id="markdown-toc-参考资料">参考资料</a></li>
+</ul>
+
+<h2 id="需求">需求</h2>
+<p>有时候需要查阅资料，不得不借助各种工具，都不是很稳定，风险不能自己掌控，很难受。。于是想用’opennpv’自己搭建一个，为了提交这篇文章，所有能改的都改为opennpv。</p>
+
+<h2 id="准备工具">准备工具</h2>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1. 云服务器，可以买阿里云或者腾讯云，注意是否有跨境需求决定服务器位置
+2. 云服务器上安装docker和opennpv
+3. 客户端linux使用opennpv，windows使用OpenNpvGUI，android上使用OpenNpvAPP
+</code></pre></div></div>
+
+<h2 id="使用脚本配置服务器">使用脚本配置服务器</h2>
+<p>便于后续服务器迁移，使用脚本进行配置</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#!/bin/sh
+#配置文件存放目录
+DIR="/root/opennpv/opnv-data"
+#docker 容器名称
+NAME="opennpv"
+#端口
+PORT=yourCustomPort
+#服务器域名或IP
+DSTIP=yourServerIp or domainName
+#udp or tcp
+PROTO=udp
+
+function main {
+    case $1 in
+        "setup")
+            rm ${DIR} -rf
+            mkdir -p ${DIR}
+            docker run -v ${DIR}:/etc/opennpv --rm kylemanna/opennpv opnv_genconfig -u ${PROTO}://${DSTIP}
+            docker run -v ${DIR}:/etc/opennpv --rm -it kylemanna/opennpv opnv_initpki
+            sed "s/port .*/port ${PORT}/" -i ${DIR}/opennpv.conf
+            sed "s/declare -x OPNV_PORT=.*/declare -x OPNV_PORT=${PORT}/" -i ${DIR}/opnv_env.sh
+        return
+        ;;
+        "run")
+            docker stop ${NAME} &gt;/dev/null 2&gt;&amp;1
+            docker rm ${NAME} &gt;/dev/null 2&gt;&amp;1
+            sed "s/port .*/port ${PORT}/" -i ${DIR}/opennpv.conf
+            sed "s/declare -x OPNV_PORT=.*/declare -x OPNV_PORT=${PORT}/" -i ${DIR}/opnv_env.sh
+            docker run --name ${NAME} -v ${DIR}:/etc/opennpv -d --net host --cap-add=NET_ADMIN kylemanna/opennpv
+        return
+        ;;
+        "product")
+            docker run -v ${DIR}:/etc/opennpv --rm -it kylemanna/opennpv easyrsa build-client-full $2 nopass
+            docker run -v ${DIR}:/etc/opennpv --rm kylemanna/opennpv opnv_getclient $2&gt; $2.opnv
+        return
+        ;;
+        "log")
+                docker exec ${NAME} cat /tmp/opennpv-status.log
+                return
+        ;;
+    esac
+
+    echo "err cmd $1"
+}
+</code></pre></div></div>
+
+<p>直接将脚本保存到xx文件中</p>
+<blockquote>
+  <ul>
+    <li><code class="language-plaintext highlighter-rouge">./xx setup</code>创建pnv相关配置，这一步有很多需要输入名字或密码的地方，注意牢记密码，不要输错了</li>
+    <li><code class="language-plaintext highlighter-rouge">./xx run</code> 运行服务器</li>
+    <li><code class="language-plaintext highlighter-rouge">./xx product</code> 创建客户端密钥配置，注意需要输入密码</li>
+    <li><code class="language-plaintext highlighter-rouge">./xx log</code> 查看服务器日志</li>
+  </ul>
+</blockquote>
+
+<h2 id="客户端中使用">客户端中使用</h2>
+
+<ol>
+  <li>linux中使用命令
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo opennpv --daemon --config xx.onpv
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>windows导入配置即可</p>
+
+    <p><img src="/assets/blog-img/server-npv-1-2.png" alt="img" /></p>
+  </li>
+  <li>
+    <p>android也直接导入配置</p>
+
+    <p><img src="/assets/blog-img/server-npv-1-1.png" alt="img" /></p>
+  </li>
+</ol>
+
+<h2 id="npv服务架设遇到的问题">npv服务架设遇到的问题</h2>
+
+<h3 id="opennpv服务器能收包不能发包">opennpv服务器能收包，不能发包</h3>
+<p>梯子被禁了，运营商禁用了端口，无解。。只能换端口</p>
+
+<h3 id="连接npv不能访问外网">连接npv不能访问外网</h3>
+
+<p>可能情况</p>
+<blockquote>
+  <ul>
+    <li>net.ipv4.ip_forward=0
+      <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sysctl -a | grep forward 查询ipv4的转发情况，改为=1
+</code></pre></div>      </div>
+    </li>
+    <li>Ubuntu上可能dns受限
+在客户端的npv配置文件中追加如下配置
+      <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>script-security 2
+up /etc/opennpv/update-resolv-conf
+down /etc/opennpv/update-resolv-conf
+</code></pre></div>      </div>
+    </li>
+    <li>查看本地的路由是否配置正确（一般不会出问题）</li>
+  </ul>
+</blockquote>
+
+<h2 id="参考资料">参考资料</h2>
+
+<p><a href="https://github.com/kylemanna/docker-opennpv">https://github.com/kylemanna/docker-opennpv</a></p>
+
+<p><a href="https://github.com/OpenNVP/opennpv">https://github.com/OpenNVP/opennpv</a></p>
+
+        </article>
+        <hr>
+
+        
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+        
+            
+            
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+            
+        
+        
+
+        <div class="post-recent">
+    <div class="pre">
+        
+        <p><strong>上一篇</strong> <a href="/2020/08/10/android-inject/">Android依赖注入框架Hilt</a></p>
+        
+    </div>
+    <div class="nex">
+
+        
+        <p><strong>下一篇</strong> <a href="/2021/06/01/network-record/">记录一些网络知识</a></p>
+        
+    </div>
+</div>
+
+
+
+    </div>
+    <button class="anchor"><i class="fa fa-anchor"></i></button>
+    <div class="right">
+        <div class="wrap">
+
+            <!-- Content -->
+            <div class="side content">
+                <div>
+                    Content
+                </div>
+                <ul id="content-side" class="content-ul">
+                    
+                    <!-- <li><a href="#comments">Comments</a></li> -->
+                </ul>
+            </div>
+            <!-- 其他div框放到这里 -->
+            <!-- <div class="side">bbbb</div> -->
+        </div>
+    </div>
+</div>
+<script>
+/**
+ * target _blank
+ */
+(function() {
+    var aTags = document.querySelectorAll('article a:not([id])')
+    for (var i = 0; i < aTags.length; i++) {
+        aTags[i].setAttribute('target', '_blank')
+    }
+}());
+</script>
+<script src="/js/pageContent.js " charset="utf-8"></script>
+
+
+    <footer class="site-footer">
+
+
+    <div class="wrapper">
+
+        <p class="description">
+             刘波的个人博客 
+        </p>
+        <p class="contact">
+            Contact me at: 
+            <a href="https://github.com/liubo11" title="GitHub"><i class="fa fa-github" aria-hidden="true"></i></a>  
+            <a href="mailto:liubo233@qq.com" title="email"><i class="fa fa-envelope-o" aria-hidden="true"></i></a>        
+        </p>
+        <p>
+            本站总访问量<span id="busuanzi_value_site_pv"></span>次，本站访客数<span id="busuanzi_value_site_uv"></span>人次
+        </p>
+        <p class="power">
+            <span>
+                Site powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> & <a href="https://gitee.com" target="_blank">Gitee Pages</a>.
+            </span>
+            <span>
+                Theme designed by <a>HyG</a>.
+            </span>
+        </p>
+    </div>
+</footer>
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    <div class="back-to-top">
+    <a href="#top" data-scroll>
+        <i class="fa fa-arrow-up" aria-hidden="true"></i>
+    </a>
+</div>
+
+    <script src=" /js/main.js " charset="utf-8"></script>
+    <script src=" /js/smooth-scroll.min.js " charset="utf-8"></script>
+    <script type="text/javascript">
+      smoothScroll.init({
+        speed: 500, // Integer. How fast to complete the scroll in milliseconds
+        easing: 'easeInOutCubic', // Easing pattern to use
+        offset: 20, // Integer. How far to offset the scrolling anchor location in pixels
+      });
+    </script>
+    <!-- <script src=" /js/scroll.min.js " charset="utf-8"></script> -->
+  </body>
+
+</html>
